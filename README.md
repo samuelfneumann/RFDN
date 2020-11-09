@@ -15,7 +15,8 @@ should have two files in it `dataFilenames.bin` and `valFilenames.bin`, each of
 which storing a dictionary of (LR, HR) filenames. The directory structure for
 the data directory must be of the following form:
 
-`data_dir`
+```
+data_dir
 ├── train
 │   ├── HR
 │   │   └── DIV2K_train_HR
@@ -32,6 +33,7 @@ the data directory must be of the following form:
         └── DIV2K_valid_LR_bicubic
             └── X2
                 └── LR VALIDATION FILES
+```
 
 The `checkpoint_file` parameter is an absolute path to the file at which you
 would like to save checkpoints of the model during the training process.
