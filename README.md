@@ -7,6 +7,9 @@ The model files are uploaded! You can use the [EDSR framework](https://github.co
 
 **The pretrained models and test codes are uploaded, now you can run test.py to get results in the challenge.**
 
+# Codebase
+The codebase was taken from [Residual Feature Distillation Network for Lightweight Image Super-Resolution](https://github.com/njulj/RFDN).
+I am adapting the code from this link.
 
 # Trainer
 The module involved in training a network. The `data_dir` instance variable
@@ -36,7 +39,5 @@ data_dir
 ```
 
 The `checkpoint_file` parameter is an absolute path to the file at which you
-would like to save checkpoints of the model during the training process.
-
-If applicable, the Trainer object will save the learning curve data in the
-current working directory.
+would like to save checkpoints of the model during the training process. The
+learning curve data is also saved to this file.
