@@ -212,9 +212,6 @@ class Trainer():
             lr_training_data = list(self.data.keys())
             shuffle(lr_training_data)
             for lr_img_name in tqdm(lr_training_data):
-                torch.cuda.empty_cache()
-                gc.collect()
-
                 # Open LR image
                 img_lr = util.uint2tensor4(util.imread_uint(lr_img_name))
                 img_lr = img_lr.to(device)
