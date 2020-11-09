@@ -209,7 +209,8 @@ class Trainer():
         # Train
         for _ in range(num_epochs):  # epochs
             losses_per_epoch = []
-            lr_training_data = shuffle(self.data.keys())
+            lr_training_data = list(self.data.keys())
+            shuffle(lr_training_data)
             for lr_img_name in tqdm(lr_training_data):
                 torch.cuda.empty_cache()
                 gc.collect()
