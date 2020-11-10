@@ -134,7 +134,8 @@ class Evaluate():
                 print("Saving image")
                 img = util.tensor2uint(prediction)
                 util.imsave(img, "/content/drive/My Drive/CMPUT511/Project" +
-                                 "/Checkpoints/img.jpg")
+                                 "/Checkpoints/epoch" + str(self.epoch) +
+                                 ".jpg")
 
     def get_values(self):
         """
