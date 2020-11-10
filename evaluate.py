@@ -65,9 +65,22 @@ class Evaluate():
         self.model.eval()
         self.model.load_state_dict(checkpoint["model_param"])
         self.model.to(self.device)
-        # self.model.load_state_dict(checkpoint["parameters"])
 
     def plot_lc(self, type_="psnr"):
+        """
+        Plots the learning curves from the data generated when training.
+
+        Parameters
+        ----------
+        type_ : str, optional
+            The type of learning curve to plot, which must be one of "psnr",
+            "ssim", or "loss", by default "psnr"
+
+        Raises
+        ------
+        ValueError
+            If type_ is not one of the allowable types.
+        """
         if (type_ := type_.lower()) not in ("psnr", "ssim", "loss"):
             raise ValueError("type_ must be one of 'psnr' or 'ssim' or 'loss'")
 
@@ -83,7 +96,19 @@ class Evaluate():
 
         fig.show()
 
-    def predict(self, lr_img_name, save_img=True):
+    def predict(self, lr_img_name: str, save_img=True):
+        """
+        Produces the super-resolution of a single input image and outputs
+        the PSNR and SSIM. Optionally saves the super-resoluted image in the
+        current working directory.
+
+        Parameters
+        ----------
+        lr_img_name : str
+            The absolute path to the low resolution image.
+        save_img : bool, optional
+            Whether the image should be save or not, by default True
+        """
         with torch.no_grad():
             img_lr = util.uint2tensor4(util.imread_uint(lr_img_name))
             img_lr = img_lr.to(self.device)
@@ -103,11 +128,22 @@ class Evaluate():
             print(f"PSNR: {psnr}")
             print(f"SSIM: {ssim_}")
 
+            # Save image if needed
             if save_img:
                 img = util.tensor2uint(prediction)
                 util.imsave(img, "./img.jpg")
 
     def get_values(self):
+        """
+        Produces the values of the PSNR and SSIM for each validation data
+        instance.
+
+        Returns
+        -------
+        dict of list of float
+            A dictionary containing the lists of PSNR and SSIM values for each
+            validation data instance.
+        """
         psnr = []
         ssim_ = []
         with torch.no_grad():
