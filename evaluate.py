@@ -73,10 +73,11 @@ class Evaluate():
 
         fig = plt.figure()
         ax = fig.add_subplot()
-        ax.plot(self.lc[type_])
+        ax.plot(self.lc[type_], label="validation " + type_)
+        ax.plot(self.lc["loss"], label="training loss")
 
         ax.set_xlabel("epochs")
-        ax.set_ylabel(type_)
+        ax.set_title("Learning Curve")
 
         fig.show()
 
