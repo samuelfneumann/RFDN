@@ -3,6 +3,7 @@ import numpy as np
 import pickle
 import torch
 import gc
+import os
 from utils import utils_image as util
 from pytorch_msssim import ssim
 from random import shuffle
@@ -115,7 +116,8 @@ class Trainer():
                       "lc": lc}
 
         # Save the checkpoint data
-        checkpoint_name = self.checkpoint_file + "_" + str(self.epoch) + ".tar"
+        checkpoint_name = os.path.dirname(self.checkpoint_file) + \
+                          "_" + str(self.epoch) + ".tar"
         torch.save(checkpoint, checkpoint_name)
         # with open(self.checkpoint_file, "wb") as outfile:
         #     pickle.dump(checkpoint, outfile)
