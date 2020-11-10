@@ -1,6 +1,7 @@
 # Import Modules
 import numpy as np
 import pickle
+import socket
 import torch
 import gc
 import os
@@ -9,6 +10,9 @@ from pytorch_msssim import ssim
 from random import shuffle
 from tqdm import tqdm
 from RFDN import RFDN
+
+
+LOCAL_HOSTNAME = "alienware-15-r2"
 
 
 class Trainer():
@@ -48,14 +52,17 @@ class Trainer():
         self.checkpoint_file = checkpoint_file
         self.epoch = 0
 
+        # Check if we are running locally or not
+        local = socket.gethostname().lower() == LOCAL_HOSTNAME
+
         # Get training data filenames
         self.data = None
-        filenames = "/dataFilenames.bin" if not self.checkpoint_file.startswith("/content") else "/dataFilenamesDrive.bin"
+        filenames = "/dataFilenames.bin" if local else "/dataFilenamesDrive.bin"
         with open(data_dir + filenames, "rb") as data_file:
             self.data = pickle.load(data_file)
 
         # Get validation data filenames
-        filenames = "/valFilenames.bin" if not self.checkpoint_file.startswith("/content") else "/valFilenamesDrive.bin"
+        filenames = "/valFilenames.bin" if local else "/valFilenamesDrive.bin"
         with open(data_dir + filenames, "rb") as data_file:
             self.val = pickle.load(data_file)
 
