@@ -109,7 +109,8 @@ class Trainer():
                       "lc": lc}
 
         # Save the checkpoint data
-        torch.save(checkpoint, self.checkpoint_file)
+        checkpoint_name = self.checkpoint_file + "_" + self.epoch + ".tar"
+        torch.save(checkpoint, checkpoint_name)
         # with open(self.checkpoint_file, "wb") as outfile:
         #     pickle.dump(checkpoint, outfile)
 
