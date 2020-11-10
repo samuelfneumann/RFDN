@@ -42,22 +42,22 @@ by creating learning curves, or performing predictions on the validation data.
 
 ### Contents of Checkpoints
 A checkpoint is a Python dictionary with the following key-value pairs:
-    **epoch**: the epoch last trained on
-    **lr**: the current learning rate for the trained model, utilized if the
-            model is trained from the current state
-    **model_param**: the model parameters
-    **optim_param**: the optimizer parameters, utilized if the model is trained
-                     from the current state
-    **lc**: the data stored during training used to generate a learning curve
+* **epoch**: the epoch last trained on
+* **lr**: the current learning rate for the trained model, utilized if the
+        model is trained from the current state
+* **model_param**: the model parameters
+* **optim_param**: the optimizer parameters, utilized if the model is trained
+                    from the current state
+* **lc**: the data stored during training used to generate a learning curve
 
 The object stored as the value for the **lc** key is another Python dictionary
 with the following key-value pairs:
-    **psnr**: the average PSNR value for _X_ randomly sampled validation data
-              instances after each epoch of training
-    **ssim**: the average SSIM value for _X_ randomly sampled validation data
-              instances after each epoch of training
-    **loss**: the average loss per mini-batch for the epoch
-    **val_items**: the _X_ above
+* **psnr**: the average PSNR value for _X_ randomly sampled validation data
+            instances after each epoch of training
+* **ssim**: the average SSIM value for _X_ randomly sampled validation data
+            instances after each epoch of training
+* **loss**: the average loss per mini-batch for the epoch
+* **val_items**: the _X_ above
 
 # Evaluate
 The evaluate class is involved in evaluating a trained network. The
