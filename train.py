@@ -50,11 +50,13 @@ class Trainer():
 
         # Get training data filenames
         self.data = None
-        with open(data_dir + "/dataFilenamesDrive.bin", "rb") as data_file:
+        filenames = "/dataFilenames.bin" if not self.checkpoint_file.startswith("/content") else "/dataFilenamesDrive.bin"
+        with open(data_dir + filenames, "rb") as data_file:
             self.data = pickle.load(data_file)
 
         # Get validation data filenames
-        with open(data_dir + "/valFilenamesDrive.bin", "rb") as data_file:
+        filenames = "/valFilenames.bin" if not self.checkpoint_file.startswith("/content") else "/valFilenamesDrive.bin"
+        with open(data_dir + filenames, "rb") as data_file:
             self.val = pickle.load(data_file)
 
         # Set up optimizer and loss

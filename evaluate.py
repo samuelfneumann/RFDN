@@ -1,5 +1,5 @@
 # Import modules
-# import numpy as np
+import numpy as np
 import pickle
 import torch
 # import gc
@@ -49,7 +49,9 @@ class Evaluate():
         # Get validation data filenames
         if not os.path.isdir(data_dir):
             raise ValueError("data_dir directory does not exist")
-        with open(data_dir + "/valFilenamesDrive.bin", "rb") as data_file:
+
+        filenames = "/valFilenames.bin" if not self.checkpoint_file.startswith("/content") else "/valFilenamesDrive.bin"
+        with open(data_dir + filenames, "rb") as data_file:
             self.val = pickle.load(data_file)
 
         # Ensure checkpoint file exists
@@ -91,7 +93,7 @@ class Evaluate():
 
         ax.set_ylabel(type_)
         ax.set_xlabel("epochs")
-        ax.set_title("Learning Curve")
+        ax.set_title("Learning Curve (" + type_ + ")")
 
         ax.legend()
 
@@ -128,6 +130,8 @@ class Evaluate():
 
             print(f"PSNR: {psnr}")
             print(f"SSIM: {ssim_}")
+            avg_loss = np.mean(self.lc["loss"])
+            print(f"Average Loss: {avg_loss}")
 
             # Save image if needed
             if save_img:
