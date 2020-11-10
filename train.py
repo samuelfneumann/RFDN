@@ -34,7 +34,15 @@ class Trainer():
         lc : bool
             Whether or not to save the learning curve data, by default True.
         """
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        if self.device.type != "cuda":
+            print("not using cuda")
+        # torch.cuda.current_device()
+        torch.cuda.empty_cache()
+
         self.model = model
+        self.model = self.model.to(self.device)
+
         self.checkpoint_file = checkpoint_file
         self.epoch = 0
 
@@ -48,8 +56,8 @@ class Trainer():
             self.val = pickle.load(data_file)
 
         # Set up optimizer and loss
-        self.optim = torch.optim.Adam(params=model.parameters(), lr=1e-2)
-        self.criterion = torch.nn.L1Loss()
+        self.optim = torch.optim.Adam(params=model.parameters(), lr=1e-2)  # ! Change LR
+        self.criterion = torch.nn.L1Loss(reduction="mean")
 
         # Store PSNR for learning curves
         self.psnr_values = []
@@ -63,12 +71,14 @@ class Trainer():
         Trainer.
         """
         # Check checkpoint data
-        with open(self.checkpoint_file, "rb") as infile:
-            checkpoint = pickle.load(infile)
+        checkpoint = torch.load(self.checkpoint_file)
+        # with open(self.checkpoint_file, "rb") as infile:
+        #     checkpoint = pickle.load(infile)
 
         # Load checkpoint data in
         self.epoch = checkpoint["epoch"]
-        self.model.load_state_dict(checkpoint["parameters"])
+        self.model.load_state_dict(checkpoint["model_param"])
+        self.optim.load_state_dict(checkpoint["optim_param"])
 
         # Keep learning curves data
         lc = checkpoint["lc"]
@@ -77,7 +87,7 @@ class Trainer():
         self.loss_values = lc["loss"]
         print(f"Loading checkpoint on epoch {self.epoch}")
 
-    def save(self, device, losses_per_epoch):
+    def save(self, losses_per_epoch):
         """
         Saves a checkpoint of the model's parameters during training as well
         as the performance evaluation for the learning curves.
@@ -90,22 +100,24 @@ class Trainer():
             The losses per training example during training for each epoch
         """
         # Create the learning curves data
-        lc = self.generate_learning_curves(device, losses_per_epoch)
+        lc = self.generate_learning_curves(losses_per_epoch)
 
         # Create the checkpoint data
         checkpoint = {"epoch": self.epoch,
-                      "parameters": self.model.state_dict(),
+                      "model_param": self.model.state_dict(),
+                      "optim_param": self.optim.state_dict(),
                       "lc": lc}
 
         # Save the checkpoint data
-        with open(self.checkpoint_file, "wb") as outfile:
-            pickle.dump(checkpoint, outfile)
+        torch.save(checkpoint, self.checkpoint_file)
+        # with open(self.checkpoint_file, "wb") as outfile:
+        #     pickle.dump(checkpoint, outfile)
 
         # Save the learning curve data
         # if self.store_learning_curves:
         #     self.save_learning_curves(device, losses_per_epoch)
 
-    def _save_lc_values(self, device):
+    def _save_lc_values(self):
         """
         Saves the data values for the learning curves
 
@@ -122,7 +134,7 @@ class Trainer():
                                                 Trainer.ITEMS_PER_CALCULATION):
                 # Open LR image
                 img_lr = util.uint2tensor4(util.imread_uint(lr_img_name))
-                img_lr = img_lr.to(device)
+                img_lr = img_lr.to(self.device)
 
                 # Open HR image label
                 img_hr = util.uint2tensor4(util.imread_uint
@@ -145,7 +157,7 @@ class Trainer():
         # Return the model to training mode
         self.model.train()
 
-    def generate_learning_curves(self, device, losses_per_epoch):
+    def generate_learning_curves(self, losses_per_epoch):
         """
         Generates the learning curves data. This includes all the
         performance measures on the validation data up to this point as well
@@ -164,7 +176,7 @@ class Trainer():
             The learning curve data
         """
         # Save validation data for learning curves - PSNR and SSIM
-        self._save_lc_values(device)
+        self._save_lc_values()
 
         # Save training loss for learning curves
         self.loss_values.append(np.mean(losses_per_epoch))
@@ -192,18 +204,12 @@ class Trainer():
             Whether to use the last checkpoint to load in model parameters and
             learning curves data or not, by default False
         """
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        if device.type != "cuda":
-            print("not using cuda")
-        # torch.cuda.current_device()
-        torch.cuda.empty_cache()
-
         # Load the model if desirable
         if load:
             self.load()
 
         # Initialize model for training
-        self.model = self.model.to(device)
+        # self.model = self.model.to(self.device)
         self.model.train()
 
         # Train
@@ -214,12 +220,12 @@ class Trainer():
             for lr_img_name in tqdm(lr_training_data):
                 # Open LR image
                 img_lr = util.uint2tensor4(util.imread_uint(lr_img_name))
-                img_lr = img_lr.to(device)
+                img_lr = img_lr.to(self.device)
 
                 # Open HR image
                 img_hr = util.uint2tensor4(util.imread_uint
                                            (self.data[lr_img_name]))
-                img_hr = img_hr.to(device)
+                img_hr = img_hr.to(self.device)
 
                 # Inference
                 prediction = self.model(img_lr)
@@ -242,7 +248,7 @@ class Trainer():
 
             # Checkpoint and save learning curves
             self.epoch += 1
-            self.save(device, losses_per_epoch)
+            self.save(losses_per_epoch)
 
 
 # Train the model
