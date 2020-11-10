@@ -8,20 +8,47 @@ import matplotlib.pyplot as plt
 from utils import utils_image as util
 from pytorch_msssim import ssim
 from random import shuffle
-from tqdm import tqdm
-from RFDN import RFDN
+# from tqdm import tqdm
+# from RFDN import RFDN
 
 
 class Evaluate():
+    """
+    Class Evaluate takes a model and performs evaluation metrics on it through
+    the validation data as well as the information saved in the training
+    process through checkpointing.
+    """
     def __init__(self, model, checkpoint_file, data_dir):
+        """
+        Constructor
+
+        Parameters
+        ----------
+        model : torch.nn.Module
+            The model to evaluate
+        checkpoint_file : str
+            The absolute path to the checkpoint file created using a
+            train.Trainer object.
+        data_dir : str
+            The absolute path to the data directory, which holds the Python
+            dictionary of filenames for the validation data.
+
+        Raises
+        ------
+        ValueError
+            If the checkpoint file or data directory does not exist
+        """
         # Choose appropriate device
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda" if torch.cuda.is_available()
+                                   else "cpu")
         if self.device.type != "cuda":
             print("not using cuda")
         # torch.cuda.current_device()
         torch.cuda.empty_cache()
 
         # Get validation data filenames
+        if not os.path.isdir(data_dir):
+            raise ValueError("data_dir directory does not exist")
         with open(data_dir + "/valFilenames.bin", "rb") as data_file:
             self.val = pickle.load(data_file)
 
@@ -30,10 +57,8 @@ class Evaluate():
             raise ValueError("checkpoint file does not exist")
 
         # Open and load the checkpoint
-        # with open(checkpoint_file, "rb") as infile:
-        #     checkpoint = pickle.load(infile)
-
         checkpoint = torch.load(checkpoint_file)
+
         self.lc = checkpoint["lc"]
         self.epoch = checkpoint["epoch"]
         self.model = model
@@ -55,7 +80,7 @@ class Evaluate():
 
         fig.show()
 
-    def predict(self, lr_img_name):
+    def predict(self, lr_img_name, save_img=True):
         with torch.no_grad():
             img_lr = util.uint2tensor4(util.imread_uint(lr_img_name))
             img_lr = img_lr.to(self.device)
@@ -75,6 +100,32 @@ class Evaluate():
             print(f"PSNR: {psnr}")
             print(f"SSIM: {ssim_}")
 
-            img = util.tensor2uint(prediction)
-            util.imsave(img, "./img.jpg")
+            if save_img:
+                img = util.tensor2uint(prediction)
+                util.imsave(img, "./img.jpg")
 
+    def get_values(self):
+        psnr = []
+        ssim_ = []
+        with torch.no_grad():
+            for lr_img_name in self.val.keys():
+                # Open LR image
+                img_lr = util.uint2tensor4(util.imread_uint(lr_img_name))
+                img_lr = img_lr.to(self.device)
+
+                # Open HR image label
+                img_hr = util.uint2tensor4(util.imread_uint
+                                           (self.val[lr_img_name]))
+                img_hr = img_hr.cpu()
+
+                # Predict
+                prediction = self.model(img_lr).cpu()
+
+                # Generate performance measures on validation data for
+                # learning curves
+                psnr.append(util.calculate_psnr(prediction.numpy(),
+                                                img_hr.numpy()))
+                ssim_.append(ssim(prediction, img_hr))
+
+        # Save the performance evaluation measures to the Trainer
+        return {"psnr": psnr, "ssim": ssim_}
