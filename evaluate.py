@@ -1,14 +1,14 @@
 # Import modules
-import numpy as np
+# import numpy as np
 import pickle
 import torch
-import gc
+# import gc
 import os
 import matplotlib.pyplot as plt
 from time import time
-from utils import utils_image as util
+import utils_image as util
 from pytorch_msssim import ssim
-from random import shuffle
+# from random import shuffle
 from tqdm import tqdm
 
 
@@ -49,7 +49,7 @@ class Evaluate():
         # Get validation data filenames
         if not os.path.isdir(data_dir):
             raise ValueError("data_dir directory does not exist")
-        with open(data_dir + "/valFilenames.bin", "rb") as data_file:
+        with open(data_dir + "/valFilenamesDrive.bin", "rb") as data_file:
             self.val = pickle.load(data_file)
 
         # Ensure checkpoint file exists
@@ -81,7 +81,8 @@ class Evaluate():
         ValueError
             If type_ is not one of the allowable types.
         """
-        if (type_ := type_.lower()) not in ("psnr", "ssim", "loss"):
+        type_ = type_.lower()
+        if type_ not in ("psnr", "ssim", "loss"):
             raise ValueError("type_ must be one of 'psnr' or 'ssim' or 'loss'")
 
         fig = plt.figure()
@@ -130,8 +131,10 @@ class Evaluate():
 
             # Save image if needed
             if save_img:
+                print("Saving image")
                 img = util.tensor2uint(prediction)
-                util.imsave(img, "./img.jpg")
+                util.imsave(img, "/content/drive/My Drive/CMPUT511/Project" +
+                                 "/Code/RFDN/img.jpg")
 
     def get_values(self):
         """

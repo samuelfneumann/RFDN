@@ -4,7 +4,7 @@ import pickle
 import torch
 import gc
 import os
-from utils import utils_image as util
+import utils_image as util
 from pytorch_msssim import ssim
 from random import shuffle
 from tqdm import tqdm
@@ -12,7 +12,7 @@ from RFDN import RFDN
 
 
 class Trainer():
-    ITEMS_PER_CALCULATION = 25
+    ITEMS_PER_CALCULATION = 75
     """
     Class Trainer trains a neural network on a super-resolution task. It
     tracks and checkpoints the process and also calculates validation data
@@ -50,11 +50,11 @@ class Trainer():
 
         # Get training data filenames
         self.data = None
-        with open(data_dir + "/dataFilenames.bin", "rb") as data_file:
+        with open(data_dir + "/dataFilenamesDrive.bin", "rb") as data_file:
             self.data = pickle.load(data_file)
 
         # Get validation data filenames
-        with open(data_dir + "/valFilenames.bin", "rb") as data_file:
+        with open(data_dir + "/valFilenamesDrive.bin", "rb") as data_file:
             self.val = pickle.load(data_file)
 
         # Set up optimizer and loss
