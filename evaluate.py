@@ -50,7 +50,7 @@ class Evaluate():
         if not os.path.isdir(data_dir):
             raise ValueError("data_dir directory does not exist")
 
-        filenames = "/valFilenames.bin" if not self.checkpoint_file.startswith("/content") else "/valFilenamesDrive.bin"
+        filenames = "/valFilenames.bin" if not checkpoint_file.startswith("/content") else "/valFilenamesDrive.bin"
         with open(data_dir + filenames, "rb") as data_file:
             self.val = pickle.load(data_file)
 
@@ -99,7 +99,7 @@ class Evaluate():
 
         fig.show()
 
-    def predict(self, lr_img_name: str, save_img=True):
+    def predict(self, lr_img_name: str, img_name: str, save_img=True):
         """
         Produces the super-resolution of a single input image and outputs
         the PSNR and SSIM. Optionally saves the super-resoluted image in the
@@ -109,6 +109,8 @@ class Evaluate():
         ----------
         lr_img_name : str
             The absolute path to the low resolution image.
+        img_name : str
+            The absolute path to the image to save
         save_img : bool, optional
             Whether the image should be save or not, by default True
         """
@@ -137,9 +139,13 @@ class Evaluate():
             if save_img:
                 print("Saving image")
                 img = util.tensor2uint(prediction)
-                util.imsave(img, "/content/drive/My Drive/CMPUT511/Project" +
-                                 "/Checkpoints/epoch" + str(self.epoch) +
-                                 ".jpg")
+
+                # // Get the appropriate image name to save
+                # // if img_name is None:
+                # //    img_name = "/content/drive/My Drive/CMPUT511/Project/" + \
+                # //        "Checkpoints/epoch" + str(self.epoch) + ".jpg"
+
+                util.imsave(img, img_name)
 
     def get_values(self):
         """
