@@ -67,3 +67,11 @@ and based on the checkpoint file from the Trainer object, the model parameters
 are initialized. The Evaluation class can then find the average PSNR or SSIM on
 the validation data, as well as plot the learning curves generated from the
 training process.
+
+# To Do Before Handing in
+- [ ] Remove checking if we are on localhost or not to determine LR-HR dictionary filenames
+- [ ] Have only dataFilenames.bin and valFilenames.bin in the Data folder, we don't
+need any references to Google Colab
+- [ ] Remove second copy of util files which were needed for Colab. Only keep util
+files in the utils folder.
+- [ ] Fix the files to import the util files (above) properly
