@@ -5,11 +5,11 @@ import torch
 import gc
 import os
 import matplotlib.pyplot as plt
+from time import time
 from utils import utils_image as util
 from pytorch_msssim import ssim
 from random import shuffle
-# from tqdm import tqdm
-# from RFDN import RFDN
+from tqdm import tqdm
 
 
 class Evaluate():
@@ -136,18 +136,19 @@ class Evaluate():
     def get_values(self):
         """
         Produces the values of the PSNR and SSIM for each validation data
-        instance.
+        instance, as well as the the time to upscale each image.
 
         Returns
         -------
         dict of list of float
-            A dictionary containing the lists of PSNR and SSIM values for each
-            validation data instance.
+            A dictionary containing the lists of PSNR, SSIM, and inference time
+            values for each validation data instance.
         """
         psnr = []
         ssim_ = []
+        times = []
         with torch.no_grad():
-            for lr_img_name in self.val.keys():
+            for lr_img_name in tqdm(list(self.val.keys())):
                 # Open LR image
                 img_lr = util.uint2tensor4(util.imread_uint(lr_img_name))
                 img_lr = img_lr.to(self.device)
@@ -157,8 +158,11 @@ class Evaluate():
                                            (self.val[lr_img_name]))
                 img_hr = img_hr.cpu()
 
-                # Predict
+                # Time and predict
+                start_time = time()
                 prediction = self.model(img_lr).cpu()
+                end_time = time()
+                times.append(end_time - start_time)
 
                 # Generate performance measures on validation data for
                 # learning curves
@@ -167,4 +171,4 @@ class Evaluate():
                 ssim_.append(ssim(prediction, img_hr))
 
         # Save the performance evaluation measures to the Trainer
-        return {"psnr": psnr, "ssim": ssim_}
+        return {"psnr": psnr, "ssim": ssim_, "times": times}
