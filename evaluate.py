@@ -3,6 +3,7 @@ import numpy as np
 import pickle
 import torch
 import socket
+from train import LOCAL_HOSTNAME
 # import gc
 import os
 import matplotlib.pyplot as plt
@@ -52,7 +53,7 @@ class Evaluate():
             raise ValueError("data_dir directory does not exist")
 
         # Choose the appropriate file to use for the LR-HR data dictionary
-        local = socket.gethostname().lower() == train.LOCAL_HOSTNAME
+        local = socket.gethostname().lower() == LOCAL_HOSTNAME
         filenames = "/valFilenames.bin" if local else "/valFilenamesDrive.bin"
         with open(data_dir + filenames, "rb") as data_file:
             self.val = pickle.load(data_file)
