@@ -34,7 +34,8 @@ class Trainer():
         lc : bool
             Whether or not to save the learning curve data, by default True.
         """
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda" if torch.cuda.is_available()
+                                   else "cpu")
         if self.device.type != "cuda":
             print("not using cuda")
         # torch.cuda.current_device()
@@ -56,7 +57,8 @@ class Trainer():
             self.val = pickle.load(data_file)
 
         # Set up optimizer and loss
-        self.optim = torch.optim.Adam(params=model.parameters(), lr=1e-2)  # ! Change LR
+        self.lr = 1e-2
+        self.optim = torch.optim.Adam(params=model.parameters(), lr=self.lr)
         self.criterion = torch.nn.L1Loss(reduction="mean")
 
         # Store PSNR for learning curves
@@ -79,6 +81,9 @@ class Trainer():
         self.epoch = checkpoint["epoch"]
         self.model.load_state_dict(checkpoint["model_param"])
         self.optim.load_state_dict(checkpoint["optim_param"])
+        self.lr = checkpoint["lr"]
+        for param in self.optim.param_groups:
+            param["lr"] = self.lr
 
         # Keep learning curves data
         lc = checkpoint["lc"]
@@ -104,12 +109,13 @@ class Trainer():
 
         # Create the checkpoint data
         checkpoint = {"epoch": self.epoch,
+                      "lr": self.lr,
                       "model_param": self.model.state_dict(),
                       "optim_param": self.optim.state_dict(),
                       "lc": lc}
 
         # Save the checkpoint data
-        checkpoint_name = self.checkpoint_file + "_" + self.epoch + ".tar"
+        checkpoint_name = self.checkpoint_file + "_" + str(self.epoch) + ".tar"
         torch.save(checkpoint, checkpoint_name)
         # with open(self.checkpoint_file, "wb") as outfile:
         #     pickle.dump(checkpoint, outfile)
@@ -247,8 +253,13 @@ class Trainer():
                 loss.backward()
                 self.optim.step()
 
-            # Checkpoint and save learning curves
+            # Update epoch number and learning rate
             self.epoch += 1
+            self.lr /= 2
+            for param in self.optim.param_groups:
+                param["lr"] = self.lr
+
+            # Checkpoint
             self.save(losses_per_epoch)
 
 
