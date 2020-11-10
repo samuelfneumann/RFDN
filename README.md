@@ -32,3 +32,12 @@ data_dir
 The `checkpoint_file` parameter is an absolute path to the file at which you
 would like to save checkpoints of the model during the training process. The
 learning curve data is also saved to this file.
+
+# Evaluate
+The evaluate class is involved in evaluating a trained network. The
+`data_dir` instance variable stores the absolute path to the directory containing
+the data, in order to be used for validation metrics. A new model is passed in,
+and based on the checkpoint file from the Trainer object, the model parameters
+are initialized. The Evaluation class can then find the average PSNR or SSIM on
+the validation data, as well as plot the learning curves generated from the
+training process.

@@ -68,16 +68,18 @@ class Evaluate():
         # self.model.load_state_dict(checkpoint["parameters"])
 
     def plot_lc(self, type_="psnr"):
-        if (type_ := type_.lower()) not in ("psnr", "ssim"):
-            raise ValueError("type_ must be one of 'psnr' or 'ssim'")
+        if (type_ := type_.lower()) not in ("psnr", "ssim", "loss"):
+            raise ValueError("type_ must be one of 'psnr' or 'ssim' or 'loss'")
 
         fig = plt.figure()
         ax = fig.add_subplot()
-        ax.plot(self.lc[type_], label="validation " + type_)
-        ax.plot(self.lc["loss"], label="training loss")
+        ax.plot(self.lc[type_], label=type_)
 
+        ax.set_ylabel(type_)
         ax.set_xlabel("epochs")
         ax.set_title("Learning Curve")
+
+        ax.legend()
 
         fig.show()
 
