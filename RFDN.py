@@ -42,3 +42,4 @@ class RFDN(nn.Module):
 
     def set_scale(self, scale_idx):
         self.scale_idx = scale_idx
+

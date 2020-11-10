@@ -134,7 +134,7 @@ class Evaluate():
                 print("Saving image")
                 img = util.tensor2uint(prediction)
                 util.imsave(img, "/content/drive/My Drive/CMPUT511/Project" +
-                                 "/Code/RFDN/img.jpg")
+                                 "/Checkpoints/img.jpg")
 
     def get_values(self):
         """
