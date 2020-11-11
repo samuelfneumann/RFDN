@@ -7,9 +7,9 @@ def make_model(args, parent=False):
     return model
 
 
-class FDC(nn.Module):
+class FDCN(nn.Module):
     def __init__(self, in_nc=3, nf=50, num_modules=4, out_nc=3, upscale=4):
-        super(FDC, self).__init__()
+        super(FDCN, self).__init__()
 
         self.fea_conv = B.conv_layer(in_nc, nf, kernel_size=3)
 
