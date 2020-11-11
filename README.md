@@ -75,3 +75,6 @@ need any references to Google Colab
 - [ ] Remove second copy of util files which were needed for Colab. Only keep util
 files in the utils folder.
 - [ ] Fix the files to import the util files (above) properly
+- [ ] State in report that learning curves are for 75 randomly sampled validation
+data instances (because we checkpoint at each epoch, we could re-make them
+for all validation instances too)
