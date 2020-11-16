@@ -16,13 +16,14 @@ LOCAL_HOSTNAME = "alienware-15-r2"
 
 
 class Trainer():
-    ITEMS_PER_CALCULATION = 75
+    ITEMS_PER_CALCULATION = 1
     """
     Class Trainer trains a neural network on a super-resolution task. It
     tracks and checkpoints the process and also calculates validation data
     for learning curves.
     """
-    def __init__(self, model, checkpoint_file, data_dir, lc=True):
+    def __init__(self, model, checkpoint_file, data_dir, lc=True, lr=1e-2,
+                 div=2):
         """
         Constructor
 
@@ -38,6 +39,10 @@ class Trainer():
             validation data.
         lc : bool
             Whether or not to save the learning curve data, by default True.
+        lr : float
+            The learning rate, by default 1e-2
+        div : float
+            How much to divide the learning rate by every epoch
         """
         self.device = torch.device("cuda" if torch.cuda.is_available()
                                    else "cpu")
@@ -67,9 +72,10 @@ class Trainer():
             self.val = pickle.load(data_file)
 
         # Set up optimizer and loss
-        self.lr = 1e-2
+        self.div = div
+        self.lr = lr
         self.optim = torch.optim.Adam(params=model.parameters(), lr=self.lr)
-        self.criterion = torch.nn.L1Loss(reduction="mean")
+        self.criterion = torch.nn.L1Loss()
 
         # Store PSNR for learning curves
         self.psnr_values = []
@@ -266,7 +272,7 @@ class Trainer():
 
             # Update epoch number and learning rate
             self.epoch += 1
-            self.lr /= 2
+            self.lr /= self.div
             for param in self.optim.param_groups:
                 param["lr"] = self.lr
 
