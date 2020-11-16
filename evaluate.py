@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 from time import time
 import utils_image as util
 from pytorch_msssim import ssim
-# from random import shuffle
 from tqdm import tqdm
 
 
@@ -144,11 +143,6 @@ class Evaluate():
                 print("Saving image")
                 img = util.tensor2uint(prediction)
 
-                # // Get the appropriate image name to save
-                # // if img_name is None:
-                # //    img_name = "/content/drive/My Drive/CMPUT511/Project/" + \
-                # //        "Checkpoints/epoch" + str(self.epoch) + ".jpg"
-
                 util.imsave(img, img_name)
 
     def get_values(self):
@@ -190,3 +184,65 @@ class Evaluate():
 
         # Save the performance evaluation measures to the Trainer
         return {"psnr": psnr, "ssim": ssim_, "times": times}
+
+    def compare_patches(self, index: int, size=24, start=(0, 0),
+                        figsize=(15, 24)):
+        """
+        Compares patches of predictions for the two models
+
+        Parameters
+        ----------
+        index : int
+            The index of the LR file in the validation file dictionary keys
+        size : int, optional
+            The size of the patch, by default 24
+        start : tuple, optional
+            The coordinate of the first pixel in the patch, which is the top
+            left pixel in the patch, by default (0, 0)
+        figsize : tuple, optional
+            The size of the matplotlib figure, by default (15, 24)
+        """
+        # Load in the LR input
+        lr_img_file = list(self.val.keys())[index]
+        lr_img = util.uint2tensor4(util.imread_uint(lr_img_file))
+        lr_img = lr_img.to(self.device)
+
+        # Get the network's prediction
+        with torch.no_grad():
+            prediction = self.model(lr_img).cpu().squeeze(0).clamp_(0, 255)
+            prediction = prediction.permute(1, 2, 0).numpy() / 255
+
+        # Get the HR label
+        hr_img_file = self.val[lr_img_file]
+        hr_img = util.imread_uint(hr_img_file) / 255
+
+        # Separate the label and prediction into patches
+        hr_patch = hr_img[start[0]:start[0] + size, start[1]:start[1]+size]
+        prediction_patch = prediction[start[0]:start[0] + size,
+                                      start[1]:start[1]+size]
+
+        # Set up the figure to plot
+        fig = plt.figure(figsize=figsize)
+        ax1 = fig.add_subplot(1, 2, 1)
+        ax2 = fig.add_subplot(1, 2, 2)
+
+        # Plot the prediction
+        ax1.imshow(prediction_patch)
+        ax1.set_title("  (a) - prediction", y=0.01, loc="left", color="white")
+        ax1.set_axis_off()
+
+        # Plot the HR label
+        ax2.imshow(hr_patch)
+        ax2.set_title("  (b) - HR label", y=0.01, loc="left", color="white")
+        ax2.set_axis_off()
+
+        fig.tight_layout()
+
+
+# if __name__ == "__main__":
+#     # model = RFDN1(nf=10, upscale=2)
+#     checkpoint_file = "/home/samuel/Documents/CMPUT511/Project/Checkpoints/checkpoint_3.tar"
+#     data_dir = "/home/samuel/Documents/CMPUT511/Project/Data"
+#     e = Evaluate(model, checkpoint_file, data_dir)
+
+#     e.compare_prediction("/home/samuel/Documents/CMPUT511/Project/Data/val/LR/DIV2K_valid_LR_bicubic/X2/0801x2.png")
