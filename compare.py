@@ -145,8 +145,10 @@ class Compare:
 
             avg_loss1 = np.mean(self.lc1["loss"])
             avg_loss2 = np.mean(self.lc2["loss"])
-            print(f"Average Loss for model 1 ({str(self.model1)}): {avg_loss1}")
-            print(f"Average Loss for model 2 ({str(self.model2)}): {avg_loss2}")
+            print(f"Average Loss for model 1 ({str(self.model1)}):" +
+                  f"{avg_loss1}")
+            print(f"Average Loss for model 2 ({str(self.model2)}): " +
+                  f"{avg_loss2}")
 
             # Save image if needed
             if save_img:
@@ -217,8 +219,8 @@ class Compare:
         size : int, optional
             The size of the patch, by default 24
         start : tuple, optional
-            The coordinate of the first pixel in the patch, which is the top
-            left pixel in the patch, by default (0, 0)
+            The coordinate of the first pixel in the uper-resoluted patch,
+            which is the top left pixel in the patch, by default (0, 0)
         figsize : tuple, optional
             The size of the matplotlib figure, by default (15, 24)
         """

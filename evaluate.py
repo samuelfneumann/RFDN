@@ -197,8 +197,8 @@ class Evaluate():
         size : int, optional
             The size of the patch, by default 24
         start : tuple, optional
-            The coordinate of the first pixel in the patch, which is the top
-            left pixel in the patch, by default (0, 0)
+            The coordinate of the first pixel in the super-resoluted patch,
+            which is the top left pixel in the patch, by default (0, 0)
         figsize : tuple, optional
             The size of the matplotlib figure, by default (15, 24)
         """
@@ -228,12 +228,14 @@ class Evaluate():
 
         # Plot the prediction
         ax1.imshow(prediction_patch)
-        ax1.set_title("  (a) - prediction", y=0.01, loc="left", color="white")
+        ax1.set_title("  (a) - prediction", y=0.01, loc="left", color="white",
+                      fontsize=18)
         ax1.set_axis_off()
 
         # Plot the HR label
         ax2.imshow(hr_patch)
-        ax2.set_title("  (b) - HR label", y=0.01, loc="left", color="white")
+        ax2.set_title("  (b) - HR label", y=0.01, loc="left", color="white",
+                      fontsize=18)
         ax2.set_axis_off()
 
         fig.tight_layout()
