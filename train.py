@@ -62,7 +62,8 @@ class Trainer():
 
         # Get training data filenames
         self.data = None
-        filenames = "/dataFilenames.bin" if local else "/dataFilenamesDrive.bin"
+        filenames = "/dataFilenames.bin" if local \
+            else "/dataFilenamesDrive.bin"
         with open(data_dir + filenames, "rb") as data_file:
             self.data = pickle.load(data_file)
 

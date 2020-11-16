@@ -78,3 +78,4 @@ files in the utils folder.
 - [ ] State in report that learning curves are for 75 randomly sampled validation
 data instances (because we checkpoint at each epoch, we could re-make them
 for all validation instances too)
+- [ ] Add documentation to block.py
