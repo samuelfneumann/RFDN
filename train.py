@@ -22,7 +22,7 @@ class Trainer():
     tracks and checkpoints the process and also calculates validation data
     for learning curves.
     """
-    def __init__(self, model, checkpoint_file, data_dir, lc=True, lr=1e-2,
+    def __init__(self, model, checkpoint_file, data_dir, num, lc=True, lr=1e-2,
                  div=2):
         """
         Constructor
@@ -44,6 +44,8 @@ class Trainer():
         div : float
             How much to divide the learning rate by every epoch
         """
+        self.num = str(num)
+
         self.device = torch.device("cuda" if torch.cuda.is_available()
                                    else "cpu")
         if self.device.type != "cuda":
@@ -133,7 +135,7 @@ class Trainer():
 
         # Save the checkpoint data
         checkpoint_name = os.path.dirname(self.checkpoint_file) + \
-            "/checkpoint_" + str(self.epoch) + ".tar"
+            "/checkpoint_" + self.num + "_" + str(self.epoch) + ".tar"
         torch.save(checkpoint, checkpoint_name)
         # with open(self.checkpoint_file, "wb") as outfile:
         #     pickle.dump(checkpoint, outfile)
