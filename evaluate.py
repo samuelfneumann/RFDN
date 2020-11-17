@@ -243,8 +243,10 @@ class Evaluate():
 
 # if __name__ == "__main__":
 #     # model = RFDN1(nf=10, upscale=2)
-#     checkpoint_file = "/home/samuel/Documents/CMPUT511/Project/Checkpoints/checkpoint_3.tar"
+    # checkpoint_file = "/home/samuel/Documents/CMPUT511/Project/" + \
+    #     "Checkpoints/checkpoint_3.tar"
 #     data_dir = "/home/samuel/Documents/CMPUT511/Project/Data"
 #     e = Evaluate(model, checkpoint_file, data_dir)
 
-#     e.compare_prediction("/home/samuel/Documents/CMPUT511/Project/Data/val/LR/DIV2K_valid_LR_bicubic/X2/0801x2.png")
+    # e.compare_prediction("/home/samuel/Documents/CMPUT511/Project" + \
+    #     "/Data/val/LR/DIV2K_valid_LR_bicubic/X2/0801x2.png")

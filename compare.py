@@ -91,17 +91,21 @@ class Compare:
         if type_ not in ("psnr", "ssim", "loss"):
             raise ValueError("type_ must be one of 'psnr' or 'ssim' or 'loss'")
 
+        # Create the appropriate figure and axis
         fig = plt.figure()
         ax = fig.add_subplot()
 
+        # Plot the learning curves
         ax.plot(self.lc1[type_], label=type_ + " " + str(self.model1))
         ax.plot(self.lc2[type_], label=type_ + " " + str(self.model2))
 
+        # Add labels and titles
         ax.set_ylabel(type_ + " " + str(self.model1))
         ax.set_xlabel("epochs")
         ax.set_title("Learning Curve (" + type_ + ") - " + str(self.model1))
         ax.legend()
 
+        # Set the x/y limits
         if x != (None, None):
             ax.set_xlim(x[0], x[1])
 
@@ -204,10 +208,10 @@ class Compare:
 
                 # Generate performance measures on validation data
                 psnr["model1"].append(util.calculate_psnr(prediction1.numpy(),
-                                                   img_hr.numpy()))
+                                                          img_hr.numpy()))
                 ssim_["model1"].append(ssim(prediction1, img_hr))
                 psnr["model2"].append(util.calculate_psnr(prediction2.numpy(),
-                                                   img_hr.numpy()))
+                                                          img_hr.numpy()))
                 ssim_["model2"].append(ssim(prediction2, img_hr))
 
         # Save the performance evaluation measures to the Trainer

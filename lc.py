@@ -97,7 +97,7 @@ class LearningCurve:
         # Set the x/y limits
         if x != (None, None):
             ax.set_xlim(x[0], x[1])
-        if y!= (None, None):
+        if y != (None, None):
             ax.set_ylim(y[0], y[1])
 
         # Adjust figure text
