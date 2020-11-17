@@ -262,7 +262,7 @@ class Compare:
         # Plot the first prediction patch
         ax1.imshow(prediction1_patch)
         ax1.set_title("  (a) - model " + str(self.model1), y=0.01, loc="left",
-                      color="white", fontsize=18)
+                      color="white", fontsize=30)
         ax1.set_axis_off()
 
         # Plot the second prediction patch
