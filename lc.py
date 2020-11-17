@@ -33,7 +33,7 @@ class LearningCurve:
             self.checkpoint_files2 = os.listdir(self.checkpoint_dir2)
 
     def plot(self, type_="psnr", figsize=(16, 9), x=(None, None),
-             y=(None, None), confidence=0.99):
+             y=(None, None), confidence=0.99, **kwargs):
         """
         Plots the learning curves for the model using the average learning
         values found in the checkpoint files. Plots the learning curves for
@@ -78,15 +78,21 @@ class LearningCurve:
         ax = fig.add_subplot()
 
         # Calculate the average type_ values for the learning curve and plot
+        label = ""
         means, errors = self._calculate_values(self.checkpoint_files,
                                                self.checkpoint_dir, type_)
-        self._plot(ax, type_, means, errors, confidence)
+        if "label" in kwargs.keys():
+            label = kwargs["label"]
+        self._plot(ax, type_, means, errors, confidence, label)
 
         # If another model has been specified, plot it as well
         if self.checkpoint_files2 is not None:
+            label2 = ""
             means, errors = self._calculate_values(self.checkpoint_files2,
                                                    self.checkpoint_dir2, type_)
-            self._plot(ax, type_, means, errors, confidence)
+            if "label2" in kwargs.keys():
+                label2 = kwargs["label2"]
+            self._plot(ax, type_, means, errors, confidence, label2)
 
         # Set the x/y limits
         if x != (None, None):
@@ -100,7 +106,7 @@ class LearningCurve:
         ax.set_ylabel(type_, fontsize=15)
         ax.legend()
 
-    def _plot(self, ax, type_, means, errors, confidence):
+    def _plot(self, ax, type_, means, errors, confidence, label):
         """
         Plots the mean points with a confidence interval about them
 
@@ -124,7 +130,7 @@ class LearningCurve:
         # y_new = spline(x_new)
         # ax.plot(x_new, y_new)
 
-        ax.plot(means, label=type_)
+        ax.plot(means, label=label + " " + type_)
 
         if not confidence < 0.01:
             ax.fill_between(np.arange(means.shape[0]), means - errors,
