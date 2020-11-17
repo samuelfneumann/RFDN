@@ -72,7 +72,7 @@ class Compare:
         self.lc1 = self._load_checkpoint(self.model1, checkpoint1)
         self.lc2 = self._load_checkpoint(self.model2, checkpoint2)
 
-    def plot_lc(self, type_="psnr"):
+    def plot_lc(self, type_="psnr", x=(None, None), y=(None, None)):
         """
         Plots the learning curves from the data generated when training.
 
@@ -101,6 +101,12 @@ class Compare:
         ax.set_xlabel("epochs")
         ax.set_title("Learning Curve (" + type_ + ") - " + str(self.model1))
         ax.legend()
+
+        if x != (None, None):
+            ax.set_xlim(x[0], x[1])
+
+        if y != (None, None):
+            ax.set_ylim(y[0], y[1])
 
         fig.show()
 
