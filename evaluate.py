@@ -1,5 +1,7 @@
 # Import modules
 import numpy as np
+import skimage.transform
+import skimage.io
 import pickle
 import torch
 import socket
@@ -102,7 +104,7 @@ class Evaluate():
 
         fig.show()
 
-    def predict(self, lr_img_name: str, img_name: str, save_img=True):
+    def predict(self, lr_img_num: int, img_name: str, save_img=True):
         """
         Produces the super-resolution of a single input image and outputs
         the PSNR and SSIM. Optionally saves the super-resoluted image in the
@@ -110,13 +112,15 @@ class Evaluate():
 
         Parameters
         ----------
-        lr_img_name : str
-            The absolute path to the low resolution image.
+        lr_img_num : int
+            The index of the low resolution image in the validation data
+            dictionary keys.
         img_name : str
             The absolute path to the image to save
         save_img : bool, optional
             Whether the image should be save or not, by default True
         """
+        lr_img_name = list(self.val.keys())[lr_img_num]
         with torch.no_grad():
             img_lr = util.uint2tensor4(util.imread_uint(lr_img_name))
             img_lr = img_lr.to(self.device)
@@ -229,13 +233,55 @@ class Evaluate():
         # Plot the prediction
         ax1.imshow(prediction_patch)
         ax1.set_title("  (a) - prediction", y=0.01, loc="left", color="white",
-                      fontsize=18)
+                      fontsize=30)
         ax1.set_axis_off()
 
         # Plot the HR label
         ax2.imshow(hr_patch)
         ax2.set_title("  (b) - HR label", y=0.01, loc="left", color="white",
-                      fontsize=18)
+                      fontsize=30)
+        ax2.set_axis_off()
+
+        fig.tight_layout()
+
+    def compare_interpolation(self, index: int, size=24, start=(0, 0),
+                              figsize=(15, 24)):
+        # Load in the LR input
+        lr_img_file = list(self.val.keys())[index]
+        lr_img = util.uint2tensor4(util.imread_uint(lr_img_file))
+        lr_img = lr_img.to(self.device)
+
+        # Get the network's prediction
+        with torch.no_grad():
+            prediction = self.model(lr_img).cpu().squeeze(0).clamp_(0, 255)
+            prediction = prediction.permute(1, 2, 0).numpy() / 255
+
+        # Read in the image and upsample it through interpolation
+        interpolated = skimage.io.imread(lr_img_file)
+        interpolated = skimage.transform.rescale(interpolated, 2,
+                                                 multichannel=True)
+
+        # Separate the label and prediction into patches
+        interp_patch = interpolated[start[0]:start[0] + size,
+                                    start[1]:start[1]+size]
+        prediction_patch = prediction[start[0]:start[0] + size,
+                                      start[1]:start[1]+size]
+
+        # Set up the figure to plot
+        fig = plt.figure(figsize=figsize)
+        ax1 = fig.add_subplot(1, 2, 1)
+        ax2 = fig.add_subplot(1, 2, 2)
+
+        # Plot the prediction
+        ax1.imshow(prediction_patch)
+        ax1.set_title("  (a) - prediction", y=0.01, loc="left", color="white",
+                      fontsize=30)
+        ax1.set_axis_off()
+
+        # Plot the HR label
+        ax2.imshow(interp_patch)
+        ax2.set_title("  (b) - interpolation", y=0.01, loc="left",
+                      color="white", fontsize=30)
         ax2.set_axis_off()
 
         fig.tight_layout()

@@ -101,10 +101,10 @@ class LearningCurve:
             ax.set_ylim(y[0], y[1])
 
         # Adjust figure text
-        ax.set_title(f"Learning Curve ({type_})", fontsize=18)
-        ax.set_xlabel("epochs", fontsize=15)
-        ax.set_ylabel(type_, fontsize=15)
-        ax.legend()
+        ax.set_title(f"Learning Curve ({type_})", fontsize=30)
+        ax.set_xlabel("epochs", fontsize=25)
+        ax.set_ylabel(type_, fontsize=25)
+        ax.legend(fontsize=18)
 
     def _plot(self, ax, type_, means, errors, confidence, label):
         """

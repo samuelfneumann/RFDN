@@ -296,6 +296,8 @@ class SRB(nn.Module):
 
 
 class BaseB(nn.Module):
+    # TODO:
+    # remove dc stuffs
     def __init__(self, in_channels):
         super(BaseB, self).__init__()
         self.dc = self.distilled_channels = in_channels//2

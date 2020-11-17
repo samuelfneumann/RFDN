@@ -268,7 +268,7 @@ class Compare:
         # Plot the second prediction patch
         ax2.imshow(prediction2_patch)
         ax2.set_title("  (b) - model " + str(self.model2), y=0.01, loc="left",
-                      color="white", fontsize=18)
+                      color="white", fontsize=30)
         ax2.set_axis_off()
 
         fig.tight_layout()
