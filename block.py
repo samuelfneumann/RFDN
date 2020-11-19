@@ -99,6 +99,11 @@ def sequential(*args):
         elif isinstance(module, nn.Module):
             modules.append(module)
     return nn.Sequential(*modules)
+    
+def pixelshuffle_block(in_channels, out_channels, upscale_factor=2, kernel_size=3, stride=1):
+    conv = conv_layer(in_channels, out_channels * (upscale_factor ** 2), kernel_size, stride)
+    pixel_shuffle = nn.PixelShuffle(upscale_factor)
+    return sequential(conv, pixel_shuffle)
 
 class ESA(nn.Module):
     def __init__(self, n_feats, conv):
@@ -328,7 +333,3 @@ class BaseB(nn.Module):
         return out_fused
 
 
-def pixelshuffle_block(in_channels, out_channels, upscale_factor=2, kernel_size=3, stride=1):
-    conv = conv_layer(in_channels, out_channels * (upscale_factor ** 2), kernel_size, stride)
-    pixel_shuffle = nn.PixelShuffle(upscale_factor)
-    return sequential(conv, pixel_shuffle)

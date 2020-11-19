@@ -1,6 +1,7 @@
 # Import modules
 import torch
 import os
+import scipy.stats as stats
 import socket
 import numpy as np
 import matplotlib.pyplot as plt
@@ -305,3 +306,26 @@ class Compare:
         model.load_state_dict(checkpoint["model_param"])
 
         return lc
+
+
+# Function definitions
+def t_test(checkpoint_dir1, checkpoint_dir2, type_="psnr"):
+    checkpoint_files1 = os.listdir(checkpoint_dir1)
+    checkpoint_files2 = os.listdir(checkpoint_dir2)
+
+    values1 = []
+    for file in checkpoint_files1:
+        checkpoint = torch.load(os.path.join(checkpoint_dir1, file))
+        values1.append(checkpoint["lc"][type_][-1])
+    values1 = np.array(values1)
+
+    values2 = []
+    for file in checkpoint_files2:
+        checkpoint = torch.load(os.path.join(checkpoint_dir2, file))
+        values2.append(checkpoint["lc"][type_][-1])
+    values2 = np.array(values2)
+
+    return stats.ttest_ind(values1, values2)[-1]
+
+
+
