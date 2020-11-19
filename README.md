@@ -68,7 +68,8 @@ with the following key-value pairs:
 * **loss**: the average loss per mini-batch for the epoch
 * **val_items**: the _X_ above
 
-# Trainer
+# Classes
+## Trainer
 The `Trainer` class takes care of training a network.
 Given a model, checkpoint file, data directory, learning rate, and
 division factor for the learning rate, a Trainer object can be created by:
@@ -89,7 +90,7 @@ checkpoint file. To train:
 train.train(epochs)
 ```
 
-# Evaluate
+## Evaluate
 The Evaluate class is involved in evaluating a trained network. The
 `data_dir` instance variable stores the absolute path to the directory containing
 the data dictionaries as specified above, in order to be used for
@@ -101,7 +102,7 @@ training process. Additionally, the Evaluate object can show predicted images
 from the network and comparisons between the network and bicubic interpolation
 or comparisons between the network and the high resolution labels.
 
-# Compare
+## Compare
 The Compare class will compare two trained networks. To create a Compare object,
 you specify two models and their associated checkpoint files, as well as the
 data directory as specified above:
