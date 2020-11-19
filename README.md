@@ -161,6 +161,11 @@ average learning curves for a set of trained networks.
 network
 10. `utils_image.py` contains utilities for working with images.
 
+For more documentation on classes or functions, please see the relevant
+Python file. All classes and functions have thorough documentation in their
+respective files about all parameters and options that the class or function
+may take in.
+
 # Results
 Here, we outline some patches of the resulting predictions.
 

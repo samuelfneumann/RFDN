@@ -1,27 +1,94 @@
 import torch.nn as nn
-
 import torch
 import torch.nn.functional as F
+from collections import OrderedDict
 
 
-def conv_layer(in_channels, out_channels, kernel_size, stride=1, dilation=1, groups=1):
+def conv_layer(in_channels, out_channels, kernel_size, stride=1, dilation=1,
+               groups=1):
+    """
+    Creates a convolution layer.
+
+    Parameters
+    ----------
+    in_channels : int
+        The number of channels to take in
+    out_channels : int
+        The number of output channels
+    kernel_size : int
+        The kernel size of the convolution kernel
+    stride : int, optional
+        The stride to move the kernel by, by default 1
+    dilation : int, optional
+        The dilation of the kernel, by default 1
+    groups : int, optional
+        How many groups to use in the convolution process, by default 1
+
+    Returns
+    -------
+    nn.Conv2d
+        The desired convolution kernel
+    """
     padding = int((kernel_size - 1) / 2) * dilation
-    return nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding=padding, bias=True, dilation=dilation,
+    return nn.Conv2d(in_channels, out_channels, kernel_size, stride,
+                     padding=padding, bias=True, dilation=dilation,
                      groups=groups)
 
 
 def norm(norm_type, nc):
+    """
+    Creates and returns the normalization process to use
+
+    Parameters
+    ----------
+    norm_type : str
+        The type of normalization procedure, must be one of 'batch' or
+        'instance'
+    nc : int
+        The number of channels
+
+    Returns
+    -------
+    nn.Module
+        The normalization procedure
+
+    Raises
+    ------
+    NotImplementedError
+        If norm_type specified incorrectly
+    """
     norm_type = norm_type.lower()
     if norm_type == 'batch':
         layer = nn.BatchNorm2d(nc, affine=True)
     elif norm_type == 'instance':
         layer = nn.InstanceNorm2d(nc, affine=False)
     else:
-        raise NotImplementedError('normalization layer [{:s}] is not found'.format(norm_type))
+        raise NotImplementedError('normalization layer [{:s}] is not found'
+                                  .format(norm_type))
     return layer
 
 
 def pad(pad_type, padding):
+    """
+    Generates and returns an object for padding
+
+    Parameters
+    ----------
+    pad_type : str
+        The type of desired padding, one of 'reflect', 'replicate'
+    padding : int
+        The amount of padding to use
+
+    Returns
+    -------
+    nn.Module
+        The padding procedure
+
+    Raises
+    ------
+    NotImplementedError
+        If pad_type specified incorrectly
+    """
     pad_type = pad_type.lower()
     if padding == 0:
         return None
@@ -30,18 +97,66 @@ def pad(pad_type, padding):
     elif pad_type == 'replicate':
         layer = nn.ReplicationPad2d(padding)
     else:
-        raise NotImplementedError('padding layer [{:s}] is not implemented'.format(pad_type))
+        raise NotImplementedError('padding layer [{:s}] is not implemented'
+                                  .format(pad_type))
     return layer
 
 
 def get_valid_padding(kernel_size, dilation):
+    """
+    Returns the appropriate amount of padding to use
+
+    Parameters
+    ----------
+    kernel_size : int
+        The size of the kernel
+    dilation : int
+        The dilation of the kernel
+
+    Returns
+    -------
+    int
+        The amount of padding to use to ensure that the output size stays
+        consistent
+    """
     kernel_size = kernel_size + (kernel_size - 1) * (dilation - 1)
     padding = (kernel_size - 1) // 2
     return padding
 
 
-def conv_block(in_nc, out_nc, kernel_size, stride=1, dilation=1, groups=1, bias=True,
-               pad_type='zero', norm_type=None, act_type='relu'):
+def conv_block(in_nc, out_nc, kernel_size, stride=1, dilation=1, groups=1,
+               bias=True, pad_type='zero', norm_type=None, act_type='relu'):
+    """
+    Generates a convolution block for the RFDN block
+
+    Parameters
+    ----------
+    in_channels : int
+        The number of channels to take in
+    out_channels : int
+        The number of output channels
+    kernel_size : int
+        The kernel size of the convolution kernel
+    stride : int, optional
+        The stride to move the kernel by, by default 1
+    dilation : int, optional
+        The dilation of the kernel, by default 1
+    groups : int, optional
+        How many groups to use in the convolution process, by default 1
+    bias : bool, optional
+        Whether or not to include the bias parameter, by default True
+    pad_type : str, optional
+        The type of padding to use, by default 'zero'
+    norm_type : str, optional
+        The type of norm to use, by default None
+    act_type : str, optional
+        The type of activation to use, by default 'relu'
+
+    Returns
+    -------
+    nn.Sequential
+        The Sequential object storing the network block
+    """
     padding = get_valid_padding(kernel_size, dilation)
     p = pad(pad_type, padding) if pad_type and pad_type != 'zero' else None
     padding = padding if pad_type == 'zero' else 0
@@ -54,6 +169,31 @@ def conv_block(in_nc, out_nc, kernel_size, stride=1, dilation=1, groups=1, bias=
 
 
 def activation(act_type, inplace=True, neg_slope=0.05, n_prelu=1):
+    """
+    Generates and returns the activation function to use
+
+    Parameters
+    ----------
+    act_type : str
+        The type of activation function, must be one of 'relu', 'lre;u' or
+        'prelu'
+    inplace : bool, optional
+        Whether to perform the activation in place or not, by default True
+    neg_slope : float, optional
+        The initial slope for the parameterized ReLU, by default 0.05
+    n_prelu : int, optional
+        The number of parameters for the parameterized ReLU, by default 1
+
+    Returns
+    -------
+    nn.Module
+        The activation function to use
+
+    Raises
+    ------
+    NotImplementedError
+        If act_type specified incorrectly
+    """
     act_type = act_type.lower()
     if act_type == 'relu':
         layer = nn.ReLU(inplace)
@@ -62,31 +202,47 @@ def activation(act_type, inplace=True, neg_slope=0.05, n_prelu=1):
     elif act_type == 'prelu':
         layer = nn.PReLU(num_parameters=n_prelu, init=neg_slope)
     else:
-        raise NotImplementedError('activation layer [{:s}] is not found'.format(act_type))
+        raise NotImplementedError('activation layer [{:s}] is not found'
+                                  .format(act_type))
     return layer
 
 
-class ShortcutBlock(nn.Module):
-    def __init__(self, submodule):
-        super(ShortcutBlock, self).__init__()
-        self.sub = submodule
+# class ShortcutBlock(nn.Module):
+#     def __init__(self, submodule):
+#         super(ShortcutBlock, self).__init__()
+#         self.sub = submodule
 
-    def forward(self, x):
-        output = x + self.sub(x)
-        return output
+#     def forward(self, x):
+#         output = x + self.sub(x)
+#         return output
 
-def mean_channels(F):
-    assert(F.dim() == 4)
-    spatial_sum = F.sum(3, keepdim=True).sum(2, keepdim=True)
-    return spatial_sum / (F.size(2) * F.size(3))
+# def mean_channels(F):
+#     assert(F.dim() == 4)
+#     spatial_sum = F.sum(3, keepdim=True).sum(2, keepdim=True)
+#     return spatial_sum / (F.size(2) * F.size(3))
 
-def stdv_channels(F):
-    assert(F.dim() == 4)
-    F_mean = mean_channels(F)
-    F_variance = (F - F_mean).pow(2).sum(3, keepdim=True).sum(2, keepdim=True) / (F.size(2) * F.size(3))
-    return F_variance.pow(0.5)
+# def stdv_channels(F):
+#     assert(F.dim() == 4)
+#     F_mean = mean_channels(F)
+#     F_variance = (F - F_mean).pow(2).sum(3, keepdim=True).sum(2, keepdim=True) / (F.size(2) * F.size(3))
+#     return F_variance.pow(0.5)
+
 
 def sequential(*args):
+    """
+    Generates a Sequential object that holds all functionality for the
+    convolutional block.
+
+    Returns
+    -------
+    nn.Sequential
+        The convolutional block
+
+    Raises
+    ------
+    NotImplementedError
+        If given an OrderedDict as the padding
+    """
     if len(args) == 1:
         if isinstance(args[0], OrderedDict):
             raise NotImplementedError('sequential does not support OrderedDict input.')
@@ -99,11 +255,36 @@ def sequential(*args):
         elif isinstance(module, nn.Module):
             modules.append(module)
     return nn.Sequential(*modules)
-    
-def pixelshuffle_block(in_channels, out_channels, upscale_factor=2, kernel_size=3, stride=1):
-    conv = conv_layer(in_channels, out_channels * (upscale_factor ** 2), kernel_size, stride)
+
+
+def pixelshuffle_block(in_channels, out_channels, upscale_factor=2,
+                       kernel_size=3, stride=1):
+    """
+    Generates the pixel shuffling operation for the end of the network
+
+    Parameters
+    ----------
+    in_channels : int
+        The number of channels to take in
+    out_channels : int
+        The number of channels in the final output image
+    upscale_factor : int, optional
+        The amount of upsampling in the final image, by default 2
+    kernel_size : int, optional
+        The size of kernels to use, by default 3
+    stride : int, optional
+        The stride of kernels to use, by default 1
+
+    Returns
+    -------
+    nn.Sequential
+        The image upsampling block for the end of the network
+    """
+    conv = conv_layer(in_channels, out_channels * (upscale_factor ** 2),
+                      kernel_size, stride)
     pixel_shuffle = nn.PixelShuffle(upscale_factor)
     return sequential(conv, pixel_shuffle)
+
 
 class ESA(nn.Module):
     def __init__(self, n_feats, conv):
@@ -267,37 +448,37 @@ class FDCB(nn.Module):
         return out_fused
 
 
-class SRB(nn.Module):
-    # the number of channels rc/dc need to be modified accordingly!!!
-    def __init__(self, in_channels):
-        super(SRB, self).__init__()
-        self.dc = self.distilled_channels = in_channels//2
-        self.rc = self.remaining_channels = in_channels
-        self.c1_r = conv_layer(in_channels, self.rc, 3)
-        self.c2_r = conv_layer(self.remaining_channels, self.rc, 3)
-        self.c3_r = conv_layer(self.remaining_channels, self.rc, 3)
-        self.c4_r = conv_layer(self.remaining_channels, self.rc, 3)
-        self.act = activation('lrelu', neg_slope=0.05)
-        self.c5 = conv_layer(self.rc, in_channels, 1)
-        self.esa = ESA(in_channels, nn.Conv2d)
+# class SRB(nn.Module):
+#     # the number of channels rc/dc need to be modified accordingly!!!
+#     def __init__(self, in_channels):
+#         super(SRB, self).__init__()
+#         self.dc = self.distilled_channels = in_channels//2
+#         self.rc = self.remaining_channels = in_channels
+#         self.c1_r = conv_layer(in_channels, self.rc, 3)
+#         self.c2_r = conv_layer(self.remaining_channels, self.rc, 3)
+#         self.c3_r = conv_layer(self.remaining_channels, self.rc, 3)
+#         self.c4_r = conv_layer(self.remaining_channels, self.rc, 3)
+#         self.act = activation('lrelu', neg_slope=0.05)
+#         self.c5 = conv_layer(self.rc, in_channels, 1)
+#         self.esa = ESA(in_channels, nn.Conv2d)
 
-    def forward(self, input):
-        r_c1 = (self.c1_r(input))
-        r_c1 = self.act(r_c1 + input)
+#     def forward(self, input):
+#         r_c1 = (self.c1_r(input))
+#         r_c1 = self.act(r_c1 + input)
 
-        r_c2 = (self.c2_r(r_c1))
-        r_c2 = self.act(r_c2 + r_c1)
+#         r_c2 = (self.c2_r(r_c1))
+#         r_c2 = self.act(r_c2 + r_c1)
 
-        r_c3 = (self.c3_r(r_c2))
-        r_c3 = self.act(r_c3 + r_c2)
+#         r_c3 = (self.c3_r(r_c2))
+#         r_c3 = self.act(r_c3 + r_c2)
 
-        r_c4 = self.c4_r(r_c3)
-        r_c4 = self.act(r_c4 + r_c3)
+#         r_c4 = self.c4_r(r_c3)
+#         r_c4 = self.act(r_c4 + r_c3)
 
-        out = r_c4
-        out_fused = self.esa(self.c5(out))
+#         out = r_c4
+#         out_fused = self.esa(self.c5(out))
 
-        return out_fused
+#         return out_fused
 
 
 class BaseB(nn.Module):
@@ -331,5 +512,3 @@ class BaseB(nn.Module):
         out_fused = self.esa(self.c5(out))
 
         return out_fused
-
-
