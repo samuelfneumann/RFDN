@@ -155,15 +155,15 @@ network
 Here, we outline some patches of the resulting predictions.
 
 ## RFDN1 vs Bicubic Interpolation
-![RFDN1vsInterpolation](../../Report/images/84-RFDN1-Interp.png)
+![RFDN1vsInterpolation](./images/84-RFDN1-Interp.png)
 
 ## RFDN vs RFDN1
-![RFDNvsRFDN1](../../Report/images/84-RFDN-RFDN1.png)
-![RFDNvsRFDN1_2](../../Report/images/84-RFDN-RFDN1_button.png)
-![RFDNvsRFDN1_3](../../Report/images/56-RFDN-RFDN1.png)
+![RFDNvsRFDN1](./images/84-RFDN-RFDN1.png)
+![RFDNvsRFDN1_2](./images/84-RFDN-RFDN1_button.png)
+![RFDNvsRFDN1_3](./images/56-RFDN-RFDN1.png)
 
 ## RFDN vs High Resolution Label
-![RFDN1-HR](../../Report/images/84-RFDN1-HR.png)
+![RFDN1-HR](./images/84-RFDN1-HR.png)
 
 # To Do Before Handing in
 - [ ] Remove checking if we are on localhost or not to determine LR-HR dictionary filenames
