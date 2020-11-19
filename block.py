@@ -161,8 +161,8 @@ def conv_block(in_nc, out_nc, kernel_size, stride=1, dilation=1, groups=1,
     p = pad(pad_type, padding) if pad_type and pad_type != 'zero' else None
     padding = padding if pad_type == 'zero' else 0
 
-    c = nn.Conv2d(in_nc, out_nc, kernel_size=kernel_size, stride=stride, padding=padding,
-                  dilation=dilation, bias=bias, groups=groups)
+    c = nn.Conv2d(in_nc, out_nc, kernel_size=kernel_size, stride=stride,
+                  padding=padding, dilation=dilation, bias=bias, groups=groups)
     a = activation(act_type) if act_type else None
     n = norm(norm_type, out_nc) if norm_type else None
     return sequential(p, c, n, a)
@@ -224,7 +224,8 @@ def activation(act_type, inplace=True, neg_slope=0.05, n_prelu=1):
 # def stdv_channels(F):
 #     assert(F.dim() == 4)
 #     F_mean = mean_channels(F)
-#     F_variance = (F - F_mean).pow(2).sum(3, keepdim=True).sum(2, keepdim=True) / (F.size(2) * F.size(3))
+    # F_variance = (F - F_mean).pow(2).sum(3, keepdim=True)
+    # .sum(2, keepdim=True) / (F.size(2) * F.size(3))
 #     return F_variance.pow(0.5)
 
 
@@ -245,7 +246,8 @@ def sequential(*args):
     """
     if len(args) == 1:
         if isinstance(args[0], OrderedDict):
-            raise NotImplementedError('sequential does not support OrderedDict input.')
+            raise NotImplementedError('sequential does not support ' +
+                                      'OrderedDict input.')
         return args[0]
     modules = []
     for module in args:
@@ -340,7 +342,8 @@ class ESA(nn.Module):
         v_range = self.relu(self.conv_max(v_max))
         c3 = self.relu(self.conv3(v_range))
         c3 = self.conv3_(c3)
-        c3 = F.interpolate(c3, (x.size(2), x.size(3)), mode='bilinear', align_corners=False)
+        c3 = F.interpolate(c3, (x.size(2), x.size(3)), mode='bilinear',
+                           align_corners=False)
         cf = self.conv_f(c1_)
         c4 = self.conv4(c3+cf)
         m = self.sigmoid(c4)
@@ -405,7 +408,8 @@ class RFDB(nn.Module):
 
         r_c4 = self.act(self.c4(r_c3))
 
-        out = torch.cat([distilled_c1, distilled_c2, distilled_c3, r_c4], dim=1)
+        out = torch.cat([distilled_c1, distilled_c2, distilled_c3, r_c4],
+                        dim=1)
         out_fused = self.esa(self.c5(out))
 
         return out_fused
@@ -578,7 +582,8 @@ class FDCB(nn.Module):
 
         r_c4 = self.act(self.c4(r_c3))
 
-        out = torch.cat([distilled_c1, distilled_c2, distilled_c3, r_c4], dim=1)
+        out = torch.cat([distilled_c1, distilled_c2, distilled_c3, r_c4],
+                        dim=1)
         out_fused = self.esa(self.c5(out))
 
         return out_fused
