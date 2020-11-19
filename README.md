@@ -71,7 +71,22 @@ with the following key-value pairs:
 # Trainer
 The `checkpoint_file` parameter is an absolute path to the file at which you
 would like to save checkpoints of the model during the training process. The
-learning curve data is also saved to this file.
+learning curve data is also saved to this file. Given a model, checkpoint file,
+data directory, learning rate, and division factor for the learning rate,
+a Trainer object can be created by:
+```
+train = Trainer(model, checkpoint_file, data_dir, learning_rate, division_factor)
+```
+Once this object has been created, you can run the train() method to begin
+training the model. The train() method takes in a single mandatory parameter,
+the number of epochs to train for. The train() method takes an optional parameter,
+`load`. If `True` the checkpoint file will be loaded and training started from
+the last checkpoint. If `False`, the checkpoint file will not be loaded. In
+either case, checkpoints will be saved to the same directory as the specified
+checkpoint file. To train:
+```
+train.train(epochs)
+```
 
 # Evaluate
 The evaluate class is involved in evaluating a trained network. The
@@ -81,6 +96,22 @@ and based on the checkpoint file from the Trainer object, the model parameters
 are initialized. The Evaluation class can then find the average PSNR or SSIM on
 the validation data, as well as plot the learning curves generated from the
 training process.
+
+# Jupyter Notebook Files
+Jupyter notebook files were used to train and evaluate models. In addition, they
+were used to create figures, compare model outputs, generate data for tables,
+generate and analyze learning curves, etc. The Python files held the main
+functionality, and the Jupyter notebook files were used to run that functionality.
+The following is a list of Jupyter notebook files and how they were used:
+1. AvgLearningCurves.ipynb was used to generate average learning curves over
+multiple trained networks and analyze the average performace.
+2. Compare.ipynb was used to compare to networks at a time, usually RFDN and RFDN1.
+3. eval.ipynb was used to evaluate a single network, printing its learning curve
+and generating output as well as generating performance metrics.
+4. Figures.ipynb was used to create all figures for the report.
+5. TablesAndMetrics.ipynb was used to generate all table data and metrics for
+the report.
+6. train.ipynb was used to train all networks.
 
 # To Do Before Handing in
 - [ ] Remove checking if we are on localhost or not to determine LR-HR dictionary filenames
