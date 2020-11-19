@@ -2,12 +2,16 @@
 The codebase was taken from [Residual Feature Distillation Network for Lightweight Image Super-Resolution](https://github.com/njulj/RFDN).
 I am adapting the code from this link.
 
-# Trainer
-The module involved in training a network. The `data_dir` instance variable
-stores the absolute path to the directory containing the data. This directory
-should have two files in it `dataFilenames.bin` and `valFilenames.bin`, each of
-which storing a dictionary of (LR, HR) filenames. The directory structure for
-the data directory must be of the following form:
+# Directory Hierarchy and dataFilenames.py
+The directory hierarchy must be of the form specified in this section in order
+to properly work with the dataFilenames.py file to generate the filenames
+dictionaries used for training and evaluation. For all classes and function,
+the `data_dir` argument stores the absolute path to the directory
+containing the data. This directory should have two files
+in it `dataFilenames.bin` and `valFilenames.bin`, each of which storing
+a dictionary of (LR, HR) absolute filenames. These dictionaries can
+be created using the dataFilenames.py script. The directory
+structure for the data directory must be of the following form:
 
 ```
 data_dir
@@ -29,9 +33,14 @@ data_dir
                 └── LR VALIDATION FILES
 ```
 
-The `checkpoint_file` parameter is an absolute path to the file at which you
-would like to save checkpoints of the model during the training process. The
-learning curve data is also saved to this file.
+Given such a directory hierarchy, you can run the script dataFilenames.py, with
+a single command line argument, which is the absolute path to the data
+directory `data_dir` as above. This script will create the necessary dictionaries
+for training and validation and save these dictionaries in `data_dir`. Then,
+whenever you use a function or class which requires the `data_dir` parameter,
+you can specify the `data_dir` above. The functions and classes will then
+look in this directory for the two dictionaries created by dataFilenames.py
+and use these dictionaries for training and evaluation.
 
 ## Checkpoints
 A Trainer object will save a checkpoint after each epoch. This checkpoint can
@@ -59,6 +68,11 @@ with the following key-value pairs:
 * **loss**: the average loss per mini-batch for the epoch
 * **val_items**: the _X_ above
 
+# Trainer
+The `checkpoint_file` parameter is an absolute path to the file at which you
+would like to save checkpoints of the model during the training process. The
+learning curve data is also saved to this file.
+
 # Evaluate
 The evaluate class is involved in evaluating a trained network. The
 `data_dir` instance variable stores the absolute path to the directory containing
@@ -75,7 +89,4 @@ need any references to Google Colab
 - [ ] Remove second copy of util files which were needed for Colab. Only keep util
 files in the utils folder.
 - [ ] Fix the files to import the util files (above) properly
-- [ ] State in report that learning curves are for 75 randomly sampled validation
-data instances (because we checkpoint at each epoch, we could re-make them
-for all validation instances too)
 - [ ] Add documentation to block.py
