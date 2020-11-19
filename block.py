@@ -287,7 +287,27 @@ def pixelshuffle_block(in_channels, out_channels, upscale_factor=2,
 
 
 class ESA(nn.Module):
+    """
+    Class ESA is the enhanced spatial attention block as outlined in:
+
+    https://openaccess.thecvf.com/content_CVPR_2020/html/
+    Liu_Residual_Feature_Aggregation_Network_for_Image_Super-
+    Resolution_CVPR_2020_paper.html
+
+    This block is placed at the end of an RFDB and is used to bring attention
+    to important feature channels
+    """
     def __init__(self, n_feats, conv):
+        """
+        Constructor, see class documentation for more details
+
+        Parameters
+        ----------
+        n_feats : int
+            The number of input features
+        conv : nn.Module
+            The convolution module to apply to the features within the block
+        """
         super(ESA, self).__init__()
         f = n_feats // 4
         self.conv1 = conv(n_feats, f, kernel_size=1)
@@ -301,6 +321,19 @@ class ESA(nn.Module):
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
+        """
+        The forward pass through the ESA block
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            The input to the ESA
+
+        Returns
+        -------
+        torch.Tensor
+            The block output
+        """
         c1_ = (self.conv1(x))
         c1 = self.conv2(c1_)
         v_max = F.max_pool2d(c1, kernel_size=7, stride=3)
@@ -316,7 +349,20 @@ class ESA(nn.Module):
 
 
 class RFDB(nn.Module):
+    """
+    Class RFDB is the residual feature distillation block for the residual
+    feature distillation network. It is the basic building block that makes up
+    most of the network.
+    """
     def __init__(self, in_channels):
+        """
+        Constructor, see class documentation for more details
+
+        Parameters
+        ----------
+        in_channels : int
+            The number of channels for the input tensors
+        """
         super(RFDB, self).__init__()
         self.dc = self.distilled_channels = in_channels//2
         self.rc = self.remaining_channels = in_channels
@@ -332,6 +378,19 @@ class RFDB(nn.Module):
         self.esa = ESA(in_channels, nn.Conv2d)
 
     def forward(self, input):
+        """
+        The forward pass through the RFDB block
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            The input to the ESA
+
+        Returns
+        -------
+        torch.Tensor
+            The block output
+        """
         distilled_c1 = self.act(self.c1_d(input))
         r_c1 = (self.c1_r(input))
         r_c1 = self.act(r_c1+input)
@@ -353,8 +412,20 @@ class RFDB(nn.Module):
 
 
 class RFDB2(nn.Module):
-    # Check the number of channels?
+    """
+    Class RFDB2 is the residual feature distillation block for the two layer
+    residual feature distillation network. It is the basic building block
+    that makes up most of the network.
+    """
     def __init__(self, in_channels):
+        """
+        Constructor, see class documentation for more details
+
+        Parameters
+        ----------
+        in_channels : int
+            The number of channels for the input tensors
+        """
         super(RFDB2, self).__init__()
         self.dc = self.distilled_channels = in_channels//2
         self.rc = self.remaining_channels = in_channels
@@ -369,6 +440,19 @@ class RFDB2(nn.Module):
         self.esa = ESA(in_channels, nn.Conv2d)
 
     def forward(self, input):
+        """
+        The forward pass through the RFDB2 block
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            The input to the ESA
+
+        Returns
+        -------
+        torch.Tensor
+            The block output
+        """
         distilled_c1 = self.act(self.c1_d(input))
         r_c1 = (self.c1_r(input))
         r_c1 = self.act(r_c1+input)
@@ -386,7 +470,20 @@ class RFDB2(nn.Module):
 
 
 class RFDB1(nn.Module):
+    """
+    Class RFDB1 is the residual feature distillation block for the single layer
+    residual feature distillation network. It is the basic building block
+    that makes up most of the network.
+    """
     def __init__(self, in_channels):
+        """
+        Constructor, see class documentation for more details
+
+        Parameters
+        ----------
+        in_channels : int
+            The number of channels for the input tensors
+        """
         super(RFDB1, self).__init__()
         self.dc = self.distilled_channels = in_channels//2
         self.rc = self.remaining_channels = in_channels
@@ -399,6 +496,19 @@ class RFDB1(nn.Module):
         self.esa = ESA(in_channels, nn.Conv2d)
 
     def forward(self, input):
+        """
+        The forward pass through the RFDB1 block
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            The input to the ESA
+
+        Returns
+        -------
+        torch.Tensor
+            The block output
+        """
         distilled_c1 = self.act(self.c1_d(input))
         r_c1 = (self.c1_r(input))
         r_c1 = self.act(r_c1+input)
@@ -412,7 +522,20 @@ class RFDB1(nn.Module):
 
 
 class FDCB(nn.Module):
+    """
+    Class FDCB is the feature distillation connection block for the
+    feature distillation connection network. It is the basic building block
+    that makes up most of the network.
+    """
     def __init__(self, in_channels):
+        """
+        Constructor, see class documentation for more details
+
+        Parameters
+        ----------
+        in_channels : int
+            The number of channels for the input tensors
+        """
         super(FDCB, self).__init__()
         self.dc = self.distilled_channels = in_channels//2
         self.rc = self.remaining_channels = in_channels
@@ -428,6 +551,19 @@ class FDCB(nn.Module):
         self.esa = ESA(in_channels, nn.Conv2d)
 
     def forward(self, input):
+        """
+        The forward pass through the FDCB block
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            The input to the ESA
+
+        Returns
+        -------
+        torch.Tensor
+            The block output
+        """
         distilled_c1 = self.act(self.c1_d(input))
         r_c1 = (self.c1_r(input))
         r_c1 = self.act(r_c1)
@@ -482,9 +618,19 @@ class FDCB(nn.Module):
 
 
 class BaseB(nn.Module):
-    # TODO:
-    # remove dc stuffs
+    """
+    Class BaseB is the base block for the base network. It is the basic
+    building block that makes up most of the network.
+    """
     def __init__(self, in_channels):
+        """
+        Constructor, see class documentation for more details
+
+        Parameters
+        ----------
+        in_channels : int
+            The number of channels for the input tensors
+        """
         super(BaseB, self).__init__()
         self.dc = self.distilled_channels = in_channels//2
         self.rc = self.remaining_channels = in_channels
@@ -497,6 +643,19 @@ class BaseB(nn.Module):
         self.esa = ESA(in_channels, nn.Conv2d)
 
     def forward(self, input):
+        """
+        The forward pass through the base block
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            The input to the ESA
+
+        Returns
+        -------
+        torch.Tensor
+            The block output
+        """
         r_c1 = (self.c1_r(input))
         r_c1 = self.act(r_c1)
 
