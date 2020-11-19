@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 from torch import load
-# from scipy.interpolate import make_interp_spline, BSpline
 
 
 # CLass definition
@@ -125,11 +124,6 @@ class LearningCurve:
         """
         errors *= confidence
 
-        # spline = make_interp_spline(np.arange(means.shape[0]), means)
-        # x_new = np.linspace(1, 40, 300)
-        # y_new = spline(x_new)
-        # ax.plot(x_new, y_new)
-
         ax.plot(means, label=label + " " + type_)
 
         if not confidence < 0.01:
@@ -169,4 +163,3 @@ class LearningCurve:
         errors = np.std(points, axis=0) / np.sqrt(len(self.checkpoint_files))
 
         return means, errors
-

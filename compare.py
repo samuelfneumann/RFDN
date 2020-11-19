@@ -326,6 +326,3 @@ def t_test(checkpoint_dir1, checkpoint_dir2, type_="psnr"):
     values2 = np.array(values2)
 
     return stats.ttest_ind(values1, values2)[-1]
-
-
-

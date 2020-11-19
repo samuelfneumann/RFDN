@@ -2,7 +2,6 @@
 import utils_image as util
 from tqdm import tqdm
 import pickle
-import numpy as np
 from skimage.metrics import structural_similarity as ssim
 import os
 from skimage.io import imread
@@ -65,17 +64,3 @@ class Interpolate:
             ssim_.append(ssim(hr_img, upscale, multichannel=True))
 
         return psnr, ssim_
-
-
-# Find interpolation psnr and ssim
-if __name__ == "__main__":
-    data_dir = "/home/samuel/Documents/CMPUT511/Project/Data"
-    interp = Interpolate(data_dir)
-
-    psnr, ssim_ = interp.calculate_values()
-
-    avg_psnr = np.mean(psnr)
-    avg_ssim = np.mean(ssim_)
-
-    print(f"Average PSNR: {avg_psnr}")
-    print(f"Average SSIM: {avg_ssim}")

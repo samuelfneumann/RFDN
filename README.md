@@ -187,4 +187,4 @@ need any references to Google Colab
 - [ ] Remove second copy of util files which were needed for Colab. Only keep util
 files in the utils folder.
 - [ ] Fix the files to import the util files (above) properly
-- [ ] Add documentation to block.py
+- [x] Add documentation to block.py

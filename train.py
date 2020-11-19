@@ -9,8 +9,6 @@ import utils_image as util
 from pytorch_msssim import ssim
 from random import shuffle
 from tqdm import tqdm
-from RFDN import RFDN
-
 
 LOCAL_HOSTNAME = "alienware-15-r2"
 
@@ -281,13 +279,3 @@ class Trainer():
 
             # Checkpoint
             self.save(losses_per_epoch)
-
-
-# Train the model
-if __name__ == "__main__":
-    model = RFDN(nf=5, upscale=2)
-    data_dir = "/home/samuel/Documents/CMPUT511/Project/Data"
-    checkpoint_file = "/home/samuel/Documents/CMPUT511/Project/" + \
-                      "Checkpoints/checkpoint.bin"
-    trainer = Trainer(model, checkpoint_file, data_dir)
-    trainer.train(1)

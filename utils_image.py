@@ -1,3 +1,4 @@
+# Import modules
 import os
 import math
 import random
@@ -17,7 +18,8 @@ https://github.com/twhui/SRGAN-pyTorch
 https://github.com/xinntao/BasicSR
 '''
 
-IMG_EXTENSIONS = ['.jpg', '.JPG', '.jpeg', '.JPEG', '.png', '.PNG', '.ppm', '.PPM', '.bmp', '.BMP']
+IMG_EXTENSIONS = ['.jpg', '.JPG', '.jpeg', '.JPEG', '.png',
+                  '.PNG', '.ppm', '.PPM', '.bmp', '.BMP']
 
 
 def is_image_file(filename):
