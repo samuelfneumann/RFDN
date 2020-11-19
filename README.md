@@ -97,10 +97,19 @@ the data dictionaries as specified above, in order to be used for
 validation metrics. A new model is passed in, and based
 on the checkpoint file from the Trainer object, the model parameters
 are initialized. The Evaluation class can then find the average PSNR or SSIM on
-the validation data, as well as plot the learning curves generated from the
-training process. Additionally, the Evaluate object can show predicted images
-from the network and comparisons between the network and bicubic interpolation
-or comparisons between the network and the high resolution labels.
+the validation data using `get_valuess()`. The class can plot the
+learning curves generated from the training process using `plot_lc()`.
+Additionally, the Evaluate object can show predicted images
+from the network using `predict()` or show comparisons between the network
+and bicubic interpolation using `compare_interpolation()`.
+Comparisons between the network and the high resolution labels can also be
+shown in a plot using `compare_patches()`.
+
+To create an Evaluate object, you must specify a model, checkpoint file, and
+data directory as specified above:
+```
+e = Evaluate(model, checkpoint_file, data_dir)
+```
 
 ## Compare
 The Compare class will compare two trained networks. To create a Compare object,
