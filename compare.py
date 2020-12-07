@@ -2,7 +2,6 @@
 import torch
 import os
 import scipy.stats as stats
-import socket
 import numpy as np
 import matplotlib.pyplot as plt
 import utils_image as util
@@ -10,8 +9,6 @@ import pickle
 from pytorch_msssim import ssim
 from tqdm import tqdm
 from time import time
-
-LOCAL_HOSTNAME = "alienware-15-r2"
 
 
 # Class definitions
@@ -64,8 +61,7 @@ class Compare:
             raise ValueError("data_dir directory does not exist")
 
         # Choose the appropriate file to use for the LR-HR data dictionary
-        local = socket.gethostname().lower() == LOCAL_HOSTNAME
-        filenames = "/valFilenames.bin" if local else "/valFilenamesDrive.bin"
+        filenames = "/valFilenames.bin"
         with open(data_dir + filenames, "rb") as data_file:
             self.val = pickle.load(data_file)
 
@@ -73,7 +69,8 @@ class Compare:
         self.lc1 = self._load_checkpoint(self.model1, checkpoint1)
         self.lc2 = self._load_checkpoint(self.model2, checkpoint2)
 
-    def plot_lc(self, type_="psnr", x=(None, None), y=(None, None)):
+    def plot_lc(self, type_="psnr", x=(None, None), y=(None, None),
+                figsize=(10, 10)):
         """
         Plots the learning curves from the data generated when training.
 
@@ -93,7 +90,7 @@ class Compare:
             raise ValueError("type_ must be one of 'psnr' or 'ssim' or 'loss'")
 
         # Create the appropriate figure and axis
-        fig = plt.figure()
+        fig = plt.figure(figsize=figsize)
         ax = fig.add_subplot()
 
         # Plot the learning curves
@@ -103,7 +100,8 @@ class Compare:
         # Add labels and titles
         ax.set_ylabel(type_ + " " + str(self.model1))
         ax.set_xlabel("epochs")
-        ax.set_title("Learning Curve (" + type_ + ") - " + str(self.model1))
+        ax.set_title("Learning Curve (" + type_ + ") - " + str(self.model1),
+                     fontdict={"family": "serif", "size": 45})
         ax.legend()
 
         # Set the x/y limits
@@ -263,13 +261,13 @@ class Compare:
         # Plot the first prediction patch
         ax1.imshow(prediction1_patch)
         ax1.set_title("  (a) - model " + str(self.model1), y=0.01, loc="left",
-                      color="white", fontsize=30)
+                      color="white",fontdict={"family": "serif", "size": 45})
         ax1.set_axis_off()
 
         # Plot the second prediction patch
         ax2.imshow(prediction2_patch)
         ax2.set_title("  (b) - model " + str(self.model2), y=0.01, loc="left",
-                      color="white", fontsize=30)
+                      color="white", fontdict={"family": "serif", "size": 45})
         ax2.set_axis_off()
 
         fig.tight_layout()
@@ -310,6 +308,23 @@ class Compare:
 
 # Function definitions
 def t_test(checkpoint_dir1, checkpoint_dir2, type_="psnr"):
+    """
+    Performs a T tests on two network outputs
+
+    Parameters
+    ----------
+    checkpoint_dir1 : str
+        The absolute path to the first network's checkpoint
+    checkpoint_dir2 : str
+        The absolute path to the second network's checkpoint
+    type_ : str, optional
+        The type of value to perform the T-test on, by default "psnr"
+
+    Returns
+    -------
+    float
+        The p-value
+    """
     checkpoint_files1 = os.listdir(checkpoint_dir1)
     checkpoint_files2 = os.listdir(checkpoint_dir2)
 

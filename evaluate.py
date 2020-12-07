@@ -4,9 +4,6 @@ import skimage.transform
 import skimage.io
 import pickle
 import torch
-import socket
-from train import LOCAL_HOSTNAME
-# import gc
 import os
 import matplotlib.pyplot as plt
 from time import time
@@ -54,8 +51,7 @@ class Evaluate():
             raise ValueError("data_dir directory does not exist")
 
         # Choose the appropriate file to use for the LR-HR data dictionary
-        local = socket.gethostname().lower() == LOCAL_HOSTNAME
-        filenames = "/valFilenames.bin" if local else "/valFilenamesDrive.bin"
+        filenames = "/valFilenames.bin"
         with open(data_dir + filenames, "rb") as data_file:
             self.val = pickle.load(data_file)
 
@@ -98,7 +94,8 @@ class Evaluate():
 
         ax.set_ylabel(type_)
         ax.set_xlabel("epochs")
-        ax.set_title("Learning Curve (" + type_ + ")")
+        ax.set_title("Learning Curve (" + type_ + ")",
+                     fontdict={"family": "serif", "size": 45})
 
         ax.legend()
 
@@ -232,20 +229,42 @@ class Evaluate():
 
         # Plot the prediction
         ax1.imshow(prediction_patch)
-        ax1.set_title("  (a) - prediction", y=0.01, loc="left", color="white",
-                      fontsize=30)
+        ax1.set_title("  (a) - prediction", y=0.01, loc="left",
+                      fontdict={"family": "serif", "size": 45,
+                                "color": "white"})
         ax1.set_axis_off()
 
         # Plot the HR label
         ax2.imshow(hr_patch)
-        ax2.set_title("  (b) - HR label", y=0.01, loc="left", color="white",
-                      fontsize=30)
+        ax2.set_title("  (b) - HR label", y=0.01, loc="left",
+                      fontdict={"family": "serif", "size": 45,
+                                "color": "white"})
         ax2.set_axis_off()
 
         fig.tight_layout()
 
     def compare_interpolation(self, index: int, size=24, start=(0, 0),
                               figsize=(15, 24)):
+        """
+        Compare interpolation will compare the prediction of the network to
+        traditional interpolation techniques for upscaling. The function does
+        so by upscaling an image by both methods and then showing a patch of
+        the upscaled image by each method in a side-by-side manner. In this
+        way, a qualitative comparison can be made between the two methods.
+
+        Parameters
+        ----------
+        index : int
+            The index of the data instance to use in the validation data.
+            For example, index 0 will use the first validation data instance
+            for comparison between the network and interpolation.
+        size : int, optional
+            The size of the patch in pixels, by default 24
+        start : tuple, optional
+            The pixel at which to start the patch, by default (0, 0)
+        figsize : tuple, optional
+            The size of the figure to show, by default (15, 24)
+        """
         # Load in the LR input
         lr_img_file = list(self.val.keys())[index]
         lr_img = util.uint2tensor4(util.imread_uint(lr_img_file))
@@ -274,14 +293,14 @@ class Evaluate():
 
         # Plot the prediction
         ax1.imshow(prediction_patch)
-        ax1.set_title("  (a) - prediction", y=0.01, loc="left", color="white",
-                      fontsize=30)
+        ax1.set_title("  (a) - prediction", y=0.01, loc="left",
+                      fontdict={"family": "serif", "size": 45, "color": "white"})
         ax1.set_axis_off()
 
         # Plot the HR label
         ax2.imshow(interp_patch)
         ax2.set_title("  (b) - interpolation", y=0.01, loc="left",
-                      color="white", fontsize=30)
+                      fontdict={"family": "serif", "size": 45, "color": "white"})
         ax2.set_axis_off()
 
         fig.tight_layout()

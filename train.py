@@ -1,7 +1,6 @@
 # Import Modules
 import numpy as np
 import pickle
-import socket
 import torch
 import gc
 import os
@@ -10,11 +9,9 @@ from pytorch_msssim import ssim
 from random import shuffle
 from tqdm import tqdm
 
-LOCAL_HOSTNAME = "alienware-15-r2"
-
 
 class Trainer():
-    ITEMS_PER_CALCULATION = 1
+    ITEMS_PER_CALCULATION = 75  # The items per learning curve calculation
     """
     Class Trainer trains a neural network on a super-resolution task. It
     tracks and checkpoints the process and also calculates validation data
@@ -58,17 +55,15 @@ class Trainer():
         self.epoch = 0
 
         # Check if we are running locally or not
-        local = socket.gethostname().lower() == LOCAL_HOSTNAME
 
         # Get training data filenames
         self.data = None
-        filenames = "/dataFilenames.bin" if local \
-            else "/dataFilenamesDrive.bin"
+        filenames = "/dataFilenames.bin"
         with open(data_dir + filenames, "rb") as data_file:
             self.data = pickle.load(data_file)
 
         # Get validation data filenames
-        filenames = "/valFilenames.bin" if local else "/valFilenamesDrive.bin"
+        filenames = "/valFilenames.bin"
         with open(data_dir + filenames, "rb") as data_file:
             self.val = pickle.load(data_file)
 

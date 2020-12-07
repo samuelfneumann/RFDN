@@ -1,6 +1,7 @@
 # Import modules
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.font_manager as font_manager
 import os
 from torch import load
 
@@ -100,10 +101,15 @@ class LearningCurve:
             ax.set_ylim(y[0], y[1])
 
         # Adjust figure text
-        ax.set_title(f"Learning Curve ({type_})", fontsize=30)
-        ax.set_xlabel("epochs", fontsize=25)
-        ax.set_ylabel(type_, fontsize=25)
-        ax.legend(fontsize=18)
+        ax.set_title(f"Learning Curve ({type_})",
+                     fontdict={"family": "serif", "size": 30})
+
+        ax.set_xlabel("epochs", fontdict={"family": "serif", "size": 30})
+        ax.set_ylabel(type_, fontsize=30,
+                      fontdict={"family": "serif"})
+
+        font = font_manager.FontProperties(family="serif", size=25)
+        ax.legend(fontsize=18, prop=font)
 
     def _plot(self, ax, type_, means, errors, confidence, label):
         """

@@ -2,6 +2,17 @@
 The codebase was taken from [Residual Feature Distillation Network for Lightweight Image Super-Resolution](https://github.com/njulj/RFDN).
 I am adapting the code from this link.
 
+# System and Dependencies
+All the code was implemented on Ubuntu 20.10 Groovy Gorilla. The following
+is a list of some of the dependencies of the system:
+* PyTorch
+* NumPy
+* SciPy
+* pytorch-msssim
+* skimage
+* matplotlib
+* tqdm
+
 # Directory Hierarchy and dataFilenames.py
 The directory hierarchy must be of the form specified in this section in order
 to properly work with the dataFilenames.py file to generate the filenames
@@ -127,6 +138,10 @@ and inference time over all validation data instances for each model.
 for each model side-by-side.
 
 # Jupyter Notebook Files
+**For each notebook file, I have included a PDF version of the notebook, in
+case the instructor does not use Jupyter, he can still view the code files
+as PDFs**
+
 Jupyter notebook files were used to train and evaluate models. In addition, they
 were used to create figures, compare model outputs, generate data for tables,
 generate and analyze learning curves, etc. The Python files held the main
@@ -179,12 +194,3 @@ Here, we outline some patches of the resulting predictions.
 
 ## RFDN vs High Resolution Label
 ![RFDN1-HR](./images/84-RFDN1-HR.png)
-
-# To Do Before Handing in
-- [ ] Remove checking if we are on localhost or not to determine LR-HR dictionary filenames
-- [ ] Have only dataFilenames.bin and valFilenames.bin in the Data folder, we don't
-need any references to Google Colab
-- [ ] Remove second copy of util files which were needed for Colab. Only keep util
-files in the utils folder.
-- [ ] Fix the files to import the util files (above) properly
-- [x] Add documentation to block.py

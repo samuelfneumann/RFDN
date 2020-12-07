@@ -207,28 +207,6 @@ def activation(act_type, inplace=True, neg_slope=0.05, n_prelu=1):
     return layer
 
 
-# class ShortcutBlock(nn.Module):
-#     def __init__(self, submodule):
-#         super(ShortcutBlock, self).__init__()
-#         self.sub = submodule
-
-#     def forward(self, x):
-#         output = x + self.sub(x)
-#         return output
-
-# def mean_channels(F):
-#     assert(F.dim() == 4)
-#     spatial_sum = F.sum(3, keepdim=True).sum(2, keepdim=True)
-#     return spatial_sum / (F.size(2) * F.size(3))
-
-# def stdv_channels(F):
-#     assert(F.dim() == 4)
-#     F_mean = mean_channels(F)
-    # F_variance = (F - F_mean).pow(2).sum(3, keepdim=True)
-    # .sum(2, keepdim=True) / (F.size(2) * F.size(3))
-#     return F_variance.pow(0.5)
-
-
 def sequential(*args):
     """
     Generates a Sequential object that holds all functionality for the
@@ -589,37 +567,61 @@ class FDCB(nn.Module):
         return out_fused
 
 
-# class SRB(nn.Module):
-#     # the number of channels rc/dc need to be modified accordingly!!!
-#     def __init__(self, in_channels):
-#         super(SRB, self).__init__()
-#         self.dc = self.distilled_channels = in_channels//2
-#         self.rc = self.remaining_channels = in_channels
-#         self.c1_r = conv_layer(in_channels, self.rc, 3)
-#         self.c2_r = conv_layer(self.remaining_channels, self.rc, 3)
-#         self.c3_r = conv_layer(self.remaining_channels, self.rc, 3)
-#         self.c4_r = conv_layer(self.remaining_channels, self.rc, 3)
-#         self.act = activation('lrelu', neg_slope=0.05)
-#         self.c5 = conv_layer(self.rc, in_channels, 1)
-#         self.esa = ESA(in_channels, nn.Conv2d)
+class SRB(nn.Module):
+    """
+    Class SRB implements the shallow residual block alone in order to test
+    the effect of only the SRBs in the RFDN network for the ablation study.
+    """
+    def __init__(self, in_channels):
+        """
+        Constructor, see class documentation for more details.
 
-#     def forward(self, input):
-#         r_c1 = (self.c1_r(input))
-#         r_c1 = self.act(r_c1 + input)
+        Parameters
+        ----------
+        in_channels : int
+            The number of input channels to the network
+        """
+        super(SRB, self).__init__()
+        self.dc = self.distilled_channels = in_channels//2
+        self.rc = self.remaining_channels = in_channels
+        self.c1_r = conv_layer(in_channels, self.rc, 3)
+        self.c2_r = conv_layer(self.remaining_channels, self.rc, 3)
+        self.c3_r = conv_layer(self.remaining_channels, self.rc, 3)
+        self.c4_r = conv_layer(self.remaining_channels, self.rc, 3)
+        self.act = activation('lrelu', neg_slope=0.05)
+        self.c5 = conv_layer(self.rc, in_channels, 1)
+        self.esa = ESA(in_channels, nn.Conv2d)
 
-#         r_c2 = (self.c2_r(r_c1))
-#         r_c2 = self.act(r_c2 + r_c1)
+    def forward(self, input):
+        """
+        The forward pass through the SRB
 
-#         r_c3 = (self.c3_r(r_c2))
-#         r_c3 = self.act(r_c3 + r_c2)
+        Parameters
+        ----------
+        input : torch.Tensor
+            The input tensor to the block
 
-#         r_c4 = self.c4_r(r_c3)
-#         r_c4 = self.act(r_c4 + r_c3)
+        Returns
+        -------
+        torch.Tensor
+            The block output
+        """
+        r_c1 = (self.c1_r(input))
+        r_c1 = self.act(r_c1 + input)
 
-#         out = r_c4
-#         out_fused = self.esa(self.c5(out))
+        r_c2 = (self.c2_r(r_c1))
+        r_c2 = self.act(r_c2 + r_c1)
 
-#         return out_fused
+        r_c3 = (self.c3_r(r_c2))
+        r_c3 = self.act(r_c3 + r_c2)
+
+        r_c4 = self.c4_r(r_c3)
+        r_c4 = self.act(r_c4 + r_c3)
+
+        out = r_c4
+        out_fused = self.esa(self.c5(out))
+
+        return out_fused
 
 
 class BaseB(nn.Module):
